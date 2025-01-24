@@ -31,7 +31,9 @@ class AuthController extends CI_Controller {
 
     public function signup() {
         try {
-
+            if($this->input->post()) {
+                
+            }
         } catch (Exception $e) {
             echo json_encode($e->getMessage());
         }
