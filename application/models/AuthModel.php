@@ -15,4 +15,9 @@ class AuthModel extends CI_Model{
             return null;
         }
     }
+
+    function signup($data) {
+        $this->db->insert('usuario', $data);
+        return $this->db->insert_id();
+    }
 }

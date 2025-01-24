@@ -53,4 +53,5 @@ $route['default_controller'] = 'AuthController';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-$route['login'] = 'AuthController/login';
+$route['api/login'] = 'AuthController/login';
+$route['api/signup'] = 'AuthController/signup';

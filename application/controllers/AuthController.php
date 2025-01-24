@@ -6,6 +6,7 @@ class AuthController extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('AuthModel');
+        $this->load->helper('verifyAuthToken_helper');
     }
 
     public function login() {
@@ -59,7 +60,18 @@ class AuthController extends CI_Controller {
     public function signup() {
         try {
             if($this->input->post()) {
-                
+                $nombre = $this->input->post('nombre');
+
+                $data = array(
+                    'nombre' => $nombre,
+                    'rol_id' => '5803',
+                );
+                $userId = $this->AuthModel->signup($data);
+                if($userId) {
+                    echo json_encode(['success' => 'Usuario registrado correctamente'], JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo json_encode(['error' => 'Error al registrar el usuario'], JSON_UNESCAPED_UNICODE);
+                }
             }
         } catch (Exception $e) {
             echo json_encode($e->getMessage());
