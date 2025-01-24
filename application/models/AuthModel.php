@@ -10,9 +10,9 @@ class AuthModel extends CI_Model{
         $this->db->where('pwd', $password);
         $query = $this->db->get();
         if($query->num_rows() > 0) {
-            return $query->result_array();
+            return $query->row_array();
         } else {
-            return "Usuario no encontrado";
+            return null;
         }
     }
 }
