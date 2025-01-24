@@ -75,10 +75,11 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => '',
-	'password' => '',
-	'database' => '',
+	'hostname' => '162.214.148.10',
+	'username' => 'tubisne_apiRestSeminuevos',
+	'password' => '0g14]O21bKWv5iABIf6v^3W',
+	'database' => 'tubisne_misautos',
+	'port' => '3306',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
