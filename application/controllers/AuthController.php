@@ -7,15 +7,33 @@ class AuthController extends CI_Controller {
         parent::__construct();
         $this->load->model('AuthModel');
         $this->load->helper('verifyAuthToken_helper');
+        
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization');
+            header('Access-Control-Max-Age: 3600');
+            exit(0);
+        }
+        
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        header('Access-Control-Allow-Credentials: true');
     }
 
     public function login() {
         try {
+            $jsonData = json_decode(file_get_contents('php://input'), true);
             $jwt = new JWT();
             $JwtSecret = getenv('SECRET_KEY');
             
-            $email = $this->input->post('usr');
-            $password = $this->input->post('pwd');
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Error al decodificar JSON');
+            }
+
+            $email = $jsonData['usr'];
+            $password = $jsonData['pwd'];
             
             if(empty($email)) {
                 throw new Exception('El correo electrónico no puede estar vacío');
@@ -78,4 +96,39 @@ class AuthController extends CI_Controller {
         }
     }
 
+    // public function getusers() {
+    //     $headerToken = $this->input->get_request_header('Authorization');
+    //     $splitToken = explode(' ', $headerToken);
+        
+    //     if (empty($headerToken)) {
+    //         echo json_encode(['error' => 'Token no proporcionado']);
+    //         return;
+    //     }
+        
+    //     if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+    //         echo json_encode(['error' => 'Formato de token inválido']);
+    //         return;
+    //     }
+    //     $token = $splitToken[1];
+    //     try {
+    //         $decoded = verifyAuthToken($token);
+    //         if($decoded) {
+    //             $users = $this->AuthModel->getUsers();
+    //             echo json_encode($users, JSON_UNESCAPED_UNICODE);
+    //         }
+    //     } catch(Exception $e) {
+    //         echo json_encode($e->getMessage());
+    //     }
+    // }
+
+    // REGISTRA LA INFORMACIÓN DEL USUARIO CUANDO YA FUE CREADO EN EL SISTEMA
+    public function register_user() {
+        try {
+            if($this->input->post()) {
+
+            }
+        }catch(Exception $e) {
+            echo json_encode($e->getMessage());
+        }
+    }
 }

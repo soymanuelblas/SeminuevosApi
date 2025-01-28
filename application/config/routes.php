@@ -55,3 +55,4 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['api/login'] = 'AuthController/login';
 $route['api/signup'] = 'AuthController/signup';
+$route['api/register'] = 'AuthController/register_user';
