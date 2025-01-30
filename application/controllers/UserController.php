@@ -38,25 +38,28 @@ class UserController extends CI_Controller {
             }
             $token = $splitToken[1];
             $decoded = verifyAuthToken($token);
-            if(!$decoded) {
-                echo json_encode(['error' => 'Token inválido']);
-                return;
-            }
-            log_message('info', 'Usuario autenticado'.$decoded->data->id.' AQUI');
-            $result = $this->UserModel->get_user($decoded->data->id);
-            if($result) {
-                echo json_encode($result);
+            if($decoded) {
+                log_message('info', $decoded);
+                $info = json_decode($decoded);
+                $id = $info->data->id;
+                log_message('info', "Buscando usuario ID: $id");
+                $user = $this->UserModel->get_user($id);
+                if($user) {
+                    echo json_encode($user);
+                } else {
+                    echo json_encode(['error' => 'Usuario no encontrado']);
+                }
             } else {
-                echo json_encode(array(
-                    'status' => 400,
-                    'message' => 'Usuario no encontrado'
-                ));
+                echo json_encode(['error' => 'Token inválido']);
             }
         }catch(Exception $e) {
-            echo json_encode(array(
-                'status' => 400,
-                'message' => $e->getMessage()
-            ));
+            $error = array(
+                'status' => 500,
+                'message' => 'Token inválido',
+                'success' => false,
+                'error' => $e->getMessage()
+            );
+            echo json_encode($error, JSON_UNESCAPED_UNICODE);
         }
     }
 
