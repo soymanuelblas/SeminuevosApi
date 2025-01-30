@@ -56,15 +56,17 @@ class AuthController extends CI_Controller {
             }
 
             $payload = [
-                'id' => $result['id'],
-                'nombre' => $result['nombre'],
-                'email' => $result['usr'],
-                'permisos' => $result['permisos'],
-                'tipostatus_id' => $result['tipostatus_id'],
-                'rol_id' => $result['rol_id'],
-                'sitio_id' => $result['sitio_id'],
+                'data' => [
+                    'id' => $result['id'],
+                    'nombre' => $result['nombre'],
+                    'email' => $result['usr'],
+                    'permisos' => $result['permisos'],
+                    'tipostatus_id' => $result['tipostatus_id'],
+                    'rol_id' => $result['rol_id'],
+                    'sitio_id' => $result['sitio_id']
+                ],
                 'iat' => time(),
-                'exp' => time() + (60 * 60 * 24 * 5), // Expiración en 5 días
+                'exp' => time() + (60 * 60 * 24 * 5)
             ];
 
             $token = $jwt->encode($payload, $JwtSecret, 'HS256');
@@ -123,9 +125,55 @@ class AuthController extends CI_Controller {
 
     // REGISTRA LA INFORMACIÓN DEL USUARIO CUANDO YA FUE CREADO EN EL SISTEMA
     public function register_user() {
+        $headerToken = $this->input->get_request_header('Authorization');
+        $splitToken = explode(' ', $headerToken);
+        if (empty($headerToken)) {
+            echo json_encode(['error' => 'Token no proporcionado']);
+            return;
+        }
+        if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+            echo json_encode(['error' => 'Formato de token inválido']);
+            return;
+        }
+        $token = $splitToken[1];
         try {
             if($this->input->post()) {
+                $valid = verifyAuthToken($token);
+                if($valid) {
+                    $rfc = $this->input->post('rfc');
+                    $razon_social = $this->input->post('razon_social');
+                    $representante_legal = $this->input->post('representante_legal');
+                    $regimen_fiscal = $this->input->post('regimen_fiscal');
+                    $cuenta_bancaria = $this->input->post('cuenta_bancaria');
+                    $contrasenia = $this->input->post('contrasenia');
+                    $recontrasenia = $this->input->post('recontrasenia');
 
+                    if(empty($rfc) || empty($razon_social) || 
+                        empty($representante_legal) || empty($regimen_fiscal) || 
+                        empty($cuenta_bancaria) || empty($contrasenia) || 
+                        empty($recontrasenia)) {
+                        throw new Exception('Todos los campos son requeridos');
+                    }
+                    if($contrasenia !== $recontrasenia) {
+                        throw new Exception('Las contraseñas no coinciden');
+                    }
+
+                    $data = array(
+                        'rfc' => $rfc,
+                        'razon_social' => $razon_social,
+                        'representante_legal' => $representante_legal,
+                        'regimen_fiscal' => $regimen_fiscal,
+                        'cuenta_bancaria' => $cuenta_bancaria,
+                        'contrasenia' => base64_encode($contrasenia),
+                    );
+
+                    $userId = $this->AuthModel->register_user($data);
+                    if($userId) {
+                        echo json_encode(['success' => 'Usuario registrado correctamente'], JSON_UNESCAPED_UNICODE);
+                    } else {
+                        echo json_encode(['error' => 'Error al registrar el usuario'], JSON_UNESCAPED_UNICODE);
+                    }
+                }
             }
         }catch(Exception $e) {
             echo json_encode($e->getMessage());
