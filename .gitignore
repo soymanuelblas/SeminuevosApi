@@ -18,3 +18,5 @@ application/logs/*
 /vendor/
 
 .env
+
+.trabajo.bat
