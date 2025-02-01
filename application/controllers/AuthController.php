@@ -98,31 +98,6 @@ class AuthController extends CI_Controller {
         }
     }
 
-    // public function getusers() {
-    //     $headerToken = $this->input->get_request_header('Authorization');
-    //     $splitToken = explode(' ', $headerToken);
-        
-    //     if (empty($headerToken)) {
-    //         echo json_encode(['error' => 'Token no proporcionado']);
-    //         return;
-    //     }
-        
-    //     if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
-    //         echo json_encode(['error' => 'Formato de token inválido']);
-    //         return;
-    //     }
-    //     $token = $splitToken[1];
-    //     try {
-    //         $decoded = verifyAuthToken($token);
-    //         if($decoded) {
-    //             $users = $this->AuthModel->getUsers();
-    //             echo json_encode($users, JSON_UNESCAPED_UNICODE);
-    //         }
-    //     } catch(Exception $e) {
-    //         echo json_encode($e->getMessage());
-    //     }
-    // }
-
     // REGISTRA LA INFORMACIÓN DEL USUARIO CUANDO YA FUE CREADO EN EL SISTEMA
     public function register_user() {
         $headerToken = $this->input->get_request_header('Authorization');
@@ -140,6 +115,8 @@ class AuthController extends CI_Controller {
             if($this->input->post()) {
                 $valid = verifyAuthToken($token);
                 if($valid) {
+                    $info = json_decode($valid);
+                    $id = $info->data->id;
                     $rfc = $this->input->post('rfc');
                     $razon_social = $this->input->post('razon_social');
                     $representante_legal = $this->input->post('representante_legal');
@@ -157,21 +134,23 @@ class AuthController extends CI_Controller {
                     if($contrasenia !== $recontrasenia) {
                         throw new Exception('Las contraseñas no coinciden');
                     }
+                    if(strlen($contrasenia) < 8) {
+                        throw new Exception('La contraseña debe tener al menos 8 caracteres');
+                    }
 
-                    $data = array(
-                        'rfc' => $rfc,
-                        'razon_social' => $razon_social,
-                        'representante_legal' => $representante_legal,
-                        'regimen_fiscal' => $regimen_fiscal,
-                        'cuenta_bancaria' => $cuenta_bancaria,
-                        'contrasenia' => base64_encode($contrasenia),
+                    $resultado = $this->AuthModel->register_user(
+                        $id,
+                        $rfc,
+                        $razon_social,
+                        $representante_legal,
+                        $regimen_fiscal,
+                        base64_encode($contrasenia)
                     );
 
-                    $userId = $this->AuthModel->register_user($data);
-                    if($userId) {
-                        echo json_encode(['success' => 'Usuario registrado correctamente'], JSON_UNESCAPED_UNICODE);
+                    if($resultado) {
+                        echo json_encode(['success' => 'Información actualizada correctamente'], JSON_UNESCAPED_UNICODE);
                     } else {
-                        echo json_encode(['error' => 'Error al registrar el usuario'], JSON_UNESCAPED_UNICODE);
+                        echo json_encode(['error' => 'Error al registrar la información del usuario'], JSON_UNESCAPED_UNICODE);
                     }
                 }
             }

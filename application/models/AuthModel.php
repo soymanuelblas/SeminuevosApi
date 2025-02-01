@@ -21,7 +21,24 @@ class AuthModel extends CI_Model{
         return $this->db->insert_id();
     }
 
-    function register_user($data) {
+    function register_user(
+        $id, $rfc, $razon_social, $representante_legal,
+        $regimen_fiscal, $contrasenia) {
         
+        $data = array(
+            'rfc' => $rfc,
+            'nombre' => $razon_social,
+            'representante_legal' => $representante_legal,
+            'regimen_fiscal' => $regimen_fiscal,
+            'contrasenia' => $contrasenia
+        );
+        $this->db->set('rfc', 'nombre', 
+        'representante_legal', 'regimen_fiscal', 
+        'contrasenia');
+        $this->db->where('id', $id);
+        $this->db->update('razon_social', $data);
+
+        // TODO - Verificar si se actualizó correctamente 
+        // Y CAMBIAR EL STATUS DEL USUARIO
     }
 }

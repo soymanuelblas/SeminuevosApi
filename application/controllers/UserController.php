@@ -7,7 +7,7 @@ class UserController extends CI_Controller {
         parent::__construct();
         $this->load->model('UserModel');
         $this->load->helper('verifyAuthToken_helper');
-
+        // CABECERAS HTTP NECESARIAS PARA PODER RECIBIR UNA SOLICITUD DESDE UN SERVIDOR EXTERNO
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
             header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH');
@@ -63,5 +63,40 @@ class UserController extends CI_Controller {
         }
     }
 
-
+    function get_regimen() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization');
+            $splitToken = explode(' ', $headerToken);
+            
+            if (empty($headerToken)) {
+                echo json_encode(['error' => 'Token no proporcionado']);
+                return;
+            }
+            
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                echo json_encode(['error' => 'Formato de token inválido']);
+                return;
+            }
+            $token = $splitToken[1];
+            $decoded = verifyAuthToken($token);
+            if($decoded) {
+                $regimen = $this->UserModel->get_regimenes();
+                if($regimen) {
+                    echo json_encode($regimen);
+                } else {
+                    echo json_encode(['error' => 'Regimen no encontrado']);
+                }
+            } else {
+                echo json_encode(['error' => 'Token inválido']);
+            }
+        }catch(Exception $e) {
+            $error = array(
+                'status' => 500,
+                'message' => 'Token inválido',
+                'success' => false,
+                'error' => $e->getMessage()
+            );
+            echo json_encode($error, JSON_UNESCAPED_UNICODE);
+        }
+    }
 }
