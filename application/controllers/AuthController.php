@@ -99,9 +99,12 @@ class AuthController extends CI_Controller {
     }
 
     public function register_user() {
-        try {    
+        try {
+            log_message('debug', 'Iniciando register_user');
+    
             // Verificar si el encabezado Authorization llega correctamente
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            log_message('debug', 'Encabezado Authorization recibido: ' . $headerToken);
     
             if (empty($headerToken)) {
                 echo json_encode(['error' => 'Token no proporcionado']);
@@ -117,21 +120,28 @@ class AuthController extends CI_Controller {
     
             $token = $splitToken[1];
     
+            // Decodificar el JSON recibido
             $jsonData = json_decode(file_get_contents('php://input'), true);
+            log_message('debug', 'Datos recibidos: ' . print_r($jsonData, true));
     
             if (!$jsonData) {
                 echo json_encode(['error' => 'No se recibieron datos válidos']);
                 exit;
             }
     
+            // Verificar el token
             $valid = verifyAuthToken($token);
             if (!$valid) {
                 echo json_encode(['error' => 'Token inválido']);
                 exit;
             }
     
+            // Extraer información del token
+            $info = json_decode($valid);
             $sitio = $info->data->sitio_id ?? null;
+            log_message('debug', 'Sitio obtenido del token: ' . $sitio);
     
+            // Extraer datos del JSON
             $rfc = $jsonData['rfc'] ?? null;
             $razon_social = $jsonData['razon_social'] ?? null;
             $representante_legal = $jsonData['representante_legal'] ?? null;
@@ -172,6 +182,7 @@ class AuthController extends CI_Controller {
     
             exit;
         } catch (Exception $e) {
+            log_message('error', 'Error en register_user: ' . $e->getMessage());
             echo json_encode(['error' => $e->getMessage()]);
             exit;
         }

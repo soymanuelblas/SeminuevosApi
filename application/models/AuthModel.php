@@ -20,7 +20,7 @@ class AuthModel extends CI_Model{
         $this->db->insert('usuario', $data);
         return $this->db->insert_id();
     }
-
+    // Datos iniciales de registro
     function register_user_data($sitio, $rfc, $razon_social, 
         $representante_legal, $regimen_fiscal) {
 
@@ -47,7 +47,7 @@ class AuthModel extends CI_Model{
         }
         return false;
     }
-
+    // Datos de registro de usuario iniciales
     function register_data_pwd($sitio, $contrasenia) {
         $data = array(
             'pwd' => $contrasenia,
