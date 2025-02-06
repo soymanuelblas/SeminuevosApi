@@ -35,7 +35,7 @@ class AuthModel extends CI_Model{
             
             $data = array(
                 'rfc' => $rfc,
-                'nombre' => $razon_social,
+                'nombre' => strtoupper($razon_social),
                 'representante_legal' => $representante_legal,
                 'regimen_fiscal' => $regimen_fiscal
             );
