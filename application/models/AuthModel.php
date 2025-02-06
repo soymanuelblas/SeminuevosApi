@@ -43,6 +43,15 @@ class AuthModel extends CI_Model{
             $this->db->where('id', $razonsocial_id);
             $this->db->update('razon_social', $data);
 
+            $data_caja = array(
+                'tipo' => '1',
+                'descripcion' => 'INICIO DE CUENTA',
+                'valor' => '0',
+                'razonsocial_id' => $razonsocial_id
+            );
+
+            $this->db->insert('operacion_caja', $data_caja);
+
             return $this->db->affected_rows() > 0;
         }
         return false;
