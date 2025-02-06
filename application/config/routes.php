@@ -59,4 +59,3 @@ $route['api/register'] = 'AuthController/register_user';
 
 // User routes
 $route['api/getuser'] = 'UserController/getuser';
-$route['api/getregimen'] = 'UserController/get_regimen';

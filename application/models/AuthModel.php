@@ -21,24 +21,42 @@ class AuthModel extends CI_Model{
         return $this->db->insert_id();
     }
 
-    function register_user(
-        $id, $rfc, $razon_social, $representante_legal,
-        $regimen_fiscal, $contrasenia) {
-        
-        $data = array(
-            'rfc' => $rfc,
-            'nombre' => $razon_social,
-            'representante_legal' => $representante_legal,
-            'regimen_fiscal' => $regimen_fiscal,
-            'contrasenia' => $contrasenia
-        );
-        $this->db->set('rfc', 'nombre', 
-        'representante_legal', 'regimen_fiscal', 
-        'contrasenia');
-        $this->db->where('id', $id);
-        $this->db->update('razon_social', $data);
+    function register_user_data($sitio, $rfc, $razon_social, 
+        $representante_legal, $regimen_fiscal) {
 
-        // TODO - Verificar si se actualizó correctamente 
-        // Y CAMBIAR EL STATUS DEL USUARIO
+        // Obtener razonsocial_id del sitio
+        $this->db->select('razonsocial_id');
+        $this->db->from('sitio');
+        $this->db->where('id', $sitio);
+        $query = $this->db->get();
+
+        if ($query->num_rows() > 0) {
+            $razonsocial_id = $query->row_array()['razonsocial_id'];
+            
+            $data = array(
+                'rfc' => $rfc,
+                'nombre' => $razon_social,
+                'representante_legal' => $representante_legal,
+                'regimen_fiscal' => $regimen_fiscal
+            );
+
+            $this->db->where('id', $razonsocial_id);
+            $this->db->update('razon_social', $data);
+
+            return $this->db->affected_rows() > 0;
+        }
+        return false;
     }
+
+    function register_data_pwd($sitio, $contrasenia) {
+        $data = array(
+            'pwd' => $contrasenia,
+            'tipostatus_id' => 851
+        );
+    
+        $this->db->where('sitio_id', $sitio);
+        $this->db->update('usuario', $data);
+    
+        return $this->db->affected_rows() > 0;
+    }    
 }

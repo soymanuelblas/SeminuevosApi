@@ -39,7 +39,6 @@ class UserController extends CI_Controller {
             $token = $splitToken[1];
             $decoded = verifyAuthToken($token);
             if($decoded) {
-                log_message('info', $decoded);
                 $info = json_decode($decoded);
                 $id = $info->data->id;
                 log_message('info', "Buscando usuario ID: $id");
@@ -48,43 +47,6 @@ class UserController extends CI_Controller {
                     echo json_encode($user);
                 } else {
                     echo json_encode(['error' => 'Usuario no encontrado']);
-                }
-            } else {
-                echo json_encode(['error' => 'Token inválido']);
-            }
-        }catch(Exception $e) {
-            $error = array(
-                'status' => 500,
-                'message' => 'Token inválido',
-                'success' => false,
-                'error' => $e->getMessage()
-            );
-            echo json_encode($error, JSON_UNESCAPED_UNICODE);
-        }
-    }
-
-    function get_regimen() {
-        try {
-            $headerToken = $this->input->get_request_header('Authorization');
-            $splitToken = explode(' ', $headerToken);
-            
-            if (empty($headerToken)) {
-                echo json_encode(['error' => 'Token no proporcionado']);
-                return;
-            }
-            
-            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
-                echo json_encode(['error' => 'Formato de token inválido']);
-                return;
-            }
-            $token = $splitToken[1];
-            $decoded = verifyAuthToken($token);
-            if($decoded) {
-                $regimen = $this->UserModel->get_regimenes();
-                if($regimen) {
-                    echo json_encode($regimen);
-                } else {
-                    echo json_encode(['error' => 'Regimen no encontrado']);
                 }
             } else {
                 echo json_encode(['error' => 'Token inválido']);
