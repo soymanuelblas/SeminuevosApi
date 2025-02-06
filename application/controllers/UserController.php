@@ -41,7 +41,6 @@ class UserController extends CI_Controller {
             if($decoded) {
                 $info = json_decode($decoded);
                 $id = $info->data->id;
-                log_message('info', "Buscando usuario ID: $id");
                 $user = $this->UserModel->get_user($id);
                 if($user) {
                     echo json_encode($user);
