@@ -62,3 +62,4 @@ $route['api/getuser'] = 'UserController/getuser';
 
 // Bank routes
 $route['api/bankaccount'] = 'BankController/add_bank_account';
+$route['api/listbankaccounts'] = 'BankController/listBankAccounts';

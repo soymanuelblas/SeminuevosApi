@@ -30,4 +30,16 @@ class BankModel extends CI_Model {
         }
         return $insert_id ? $insert_id : false;
     }
+
+    function listBankAccounts($sitio) {
+        $this->db->select('id, nombre');
+        $this->db->from('cuentas_bancarias');
+        $this->db->where('sitio_id', $sitio);
+        $query = $this->db->get();
+    
+        if ($query->num_rows() == 0) {
+            return false;
+        }
+        return $query->result_array();
+    }
 }
