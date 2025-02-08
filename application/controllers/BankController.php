@@ -10,7 +10,7 @@ class BankController extends CI_Controller {
         
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE');
             header('Access-Control-Allow-Headers: Content-Type, Authorization');
             header('Access-Control-Max-Age: 3600');
             exit(0);
@@ -119,6 +119,58 @@ class BankController extends CI_Controller {
 
         }catch (Exception $e) {
             echo json_encode(['error' => 'Excepción atrapada', 'message' => $e->getMessage()]);
+            exit;
+        }
+    }
+    // DELETE BY ID BANK ACCOUNT
+    function deleteBankAccount() {
+        try{
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+
+            $token = $splitToken[1];
+    
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                echo json_encode(['error' => 'Token inválido o mal formado']);
+                exit;
+            }
+    
+            $info = json_decode($valid);
+            $sitio = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+            
+            $id = $this->input->get('id');
+            if (empty($id)) {
+                echo json_encode(['error' => 'ID no proporcionado']);
+                exit;
+            }
+
+            $result = $this->BankModel->deleteBankAccount($id, $sitio);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => 'Cuenta bancaria eliminada correctamente',
+                    'status' => 'success',
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'Error al eliminar cuenta bancaria',
+                    'status' => 'error',
+                ]);
+            }
+
+        }catch (Exception $e) {
+            echo json_encode(['error' => 'Error del servidor', 'message' => $e->getMessage()]);
             exit;
         }
     }

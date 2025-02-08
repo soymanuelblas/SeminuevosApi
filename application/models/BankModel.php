@@ -42,4 +42,10 @@ class BankModel extends CI_Model {
         }
         return $query->result_array();
     }
+
+    public function deleteBankAccount($id, $sitio_id) {
+        $this->db->where('id', $id);
+        $this->db->where('sitio_id', $sitio_id);
+        return $this->db->delete('cuentas_bancarias');
+    }
 }
