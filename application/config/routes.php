@@ -67,3 +67,4 @@ $route['api/deletebankaccount'] = 'BankController/deleteBankAccount';
 
 // Client/Provider routes
 $route['api/clientprovider'] = 'ClienteProvedor/CliProvController/addClienteProvedor';
+$route['api/listclientprovider'] = 'ClienteProvedor/CliProvController/listClientesProveedores';

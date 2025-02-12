@@ -31,10 +31,11 @@ class ClienteProvModel extends CI_Model {
     }
 
     function listClientProvider($usuario_id) {
-        $this->db->select('nombre, domicilio, ');
+        $this->db->select('clientes.nombre, clientes.domicilio, clientes.colonia, clientes.cp, clientes.ciudad, clientes.estado, clientes.rfc, clientes.telefono1, clientes.email, tipocliente.descripcion as tipo, tipostatus.descripcion as status');
         $this->db->from('clientes');
-        $this->db->join('razonessociales', 'clientes.razonsocial_id = razonessociales.id');
-        $this->db->where('razonessociales.usuario_id', $usuario_id);
+        $this->db->join('tipostatus as tipocliente', 'tipocliente.id = clientes.tipocliente_id', 'left');
+        $this->db->join('tipostatus as tipostatus', 'tipostatus.id = clientes.tipostatus_id', 'left');
+        $this->db->where('clientes.usuario_id', $usuario_id);
         $query = $this->db->get();
 
         return $query->result_array();

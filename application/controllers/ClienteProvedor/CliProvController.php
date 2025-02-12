@@ -151,6 +151,19 @@ class CliProvController extends CI_Controller {
             // Obtener los clientes/proveedores
             $clientesProveedores = $this->ClienteProvModel->listClientProvider($usuario_id);
 
+            if($clientesProveedores) {
+                echo json_encode([
+                    'data' => $clientesProveedores,
+                    'status' => 'success'
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'No se encontraron clientes/proveedores',
+                    'status' => 'error'
+                ]);
+            }
+
+
         }catch (Exception $e) {
             error_log("Excepción capturada: " . $e->getMessage());
             echo json_encode([
