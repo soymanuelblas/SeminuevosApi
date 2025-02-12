@@ -151,8 +151,6 @@ class CliProvController extends CI_Controller {
             // Obtener los clientes/proveedores
             $clientesProveedores = $this->ClienteProvModel->listClientProvider($usuario_id);
 
-
-
         }catch (Exception $e) {
             error_log("Excepción capturada: " . $e->getMessage());
             echo json_encode([
