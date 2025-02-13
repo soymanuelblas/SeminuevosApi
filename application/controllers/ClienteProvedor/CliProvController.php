@@ -163,7 +163,6 @@ class CliProvController extends CI_Controller {
                 ]);
             }
 
-
         }catch (Exception $e) {
             error_log("Excepción capturada: " . $e->getMessage());
             echo json_encode([
