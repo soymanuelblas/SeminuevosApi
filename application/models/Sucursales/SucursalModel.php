@@ -29,5 +29,24 @@ class SucursalModel extends CI_Model {
         return $this->db->update('sitio', $data);
     }
     
+    function list_sucursal($sitio_id) {
+
+        $this->db->select('razonsocial_id');
+        $this->db->from('sitio');
+        $this->db->where('id', $sitio_id);
+
+        $query2 = $this->db->get();
+
+        $razonsocial_id = $query2->row()->razonsocial_id;
+
+        $this->db->select('id, nombre, domicilio1, domicilio2, ciudad, estado, cp, pais, telefono1, telefono2, contacto, correo, pass_correo');
+        $this->db->from('sitio');
+        $this->db->where('razonsocial_id', $razonsocial_id);
+
+        $query = $this->db->get();
+
+        return $query->result();
+
+    }
 
 }

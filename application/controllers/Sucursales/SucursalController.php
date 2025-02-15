@@ -177,5 +177,60 @@ class SucursalController extends CI_Controller {
         }
     }
 
+    public function list_sucursal() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                echo json_encode([
+                    'error' => 'Token no proporcionado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                echo json_encode([
+                    'error' => 'Formato de token inválido',
+                    'status' => 'error']);
+                exit;
+            }
+            $token = $splitToken[1];
+    
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                echo json_encode(['error' => 'Token inválido o mal formado']);
+                exit;
+            }
+
+            $info = json_decode($valid);
+            $id = $info->data->sitio_id;
+
+            log_message('error', 'ID: ' . $id);
+
+            $result = $this->SucursalModel->list_sucursal($id);
+            
+            if($result) {
+                echo json_encode(
+                    [
+                        'data' => $result,
+                        'status' => 'success'
+                    ]);
+            } else {
+                echo json_encode(
+                    [
+                        'message' => 'No se encontraron sucursales',
+                        'status' => 'error'
+                    ]);
+            }
+        }catch(Exception $e){
+            echo json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'status' => 'error'
+                ]);
+        }
+    }
+
 
 }
