@@ -1,6 +1,6 @@
 <?php
 
-class AuthModel extends CI_Model{
+class AuthModel extends CI_Model {
 
     function check_login($email, $password) {
         $this->db->select('id, nombre, usr, permisos,

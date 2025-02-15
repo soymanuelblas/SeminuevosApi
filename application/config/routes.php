@@ -70,3 +70,7 @@ $route['api/clientprovider'] = 'ClienteProvedor/CliProvController/addClienteProv
 $route['api/listclientprovider'] = 'ClienteProvedor/CliProvController/listClientesProveedores';
 // TODO - Update client/provider
 $route['api/updateclientprovider'] = 'ClienteProvedor/CliProvController/updateClienteProveedor';
+
+// Sucursal routes
+$route['api/sucursal'] = 'Sucursales/SucursalController/add_sucursal';
+$route['api/updatesucursal'] = 'Sucursales/SucursalController/update_sucursal';
