@@ -28,14 +28,18 @@ class MovimientosController extends CI_Controller {
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
     
             if (empty($headerToken)) {
-                echo json_encode(['error' => 'Token no proporcionado']);
+                echo json_encode([
+                    'error' => 'Token no proporcionado',
+                    'status' => 'error']);
                 exit;
             }
     
             // Verificar si el token tiene el formato correcto
             $splitToken = explode(' ', $headerToken);
             if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
-                echo json_encode(['error' => 'Formato de token inválido']);
+                echo json_encode([
+                    'error' => 'Formato de token inválido',
+                    'status' => 'error']);
                 exit;
             }
             $token = $splitToken[1];
@@ -43,7 +47,9 @@ class MovimientosController extends CI_Controller {
             // Verificar el token
             $valid = verifyAuthToken($token);
             if (!$valid) {
-                echo json_encode(['error' => 'Token inválido']);
+                echo json_encode([
+                    'error' => 'Token inválido',
+                    'status' => 'error']);
                 exit;
             }
 
@@ -53,7 +59,9 @@ class MovimientosController extends CI_Controller {
             // Obtener el último ID de operación
             $ultimoID = $this->MovimientosModel->obtenerUltimoID($sitio_id);
             if (!$ultimoID) {
-                $this->response(['error' => 'No se encontraron operaciones'], REST_Controller::HTTP_NOT_FOUND);
+                $this->response([
+                    'error' => 'No se encontraron operaciones',
+                    'status' => 'error']);
                 return;
             }
 
@@ -73,7 +81,6 @@ class MovimientosController extends CI_Controller {
             }
 
             echo json_encode([
-                'sitio_id' => $sitio_id,
                 'movimientos' => $movimientos,
                 'status' => 'success'
             ]);
@@ -85,6 +92,4 @@ class MovimientosController extends CI_Controller {
             ]);
         }
     }
-
-
 }
