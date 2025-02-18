@@ -75,3 +75,6 @@ $route['api/updateclientprovider'] = 'ClienteProvedor/CliProvController/updateCl
 $route['api/sucursal'] = 'Sucursales/SucursalController/add_sucursal';
 $route['api/updatesucursal'] = 'Sucursales/SucursalController/update_sucursal';
 $route['api/listsucursal'] = 'Sucursales/SucursalController/list_sucursal';
+
+// Movimientos routes
+$route['api/movimientos'] = 'Movimientos/MovimientosController/listMovimientos';
