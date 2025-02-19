@@ -78,3 +78,7 @@ $route['api/listsucursal'] = 'Sucursales/SucursalController/list_sucursal';
 
 // Movimientos routes
 $route['api/movimientos'] = 'Movimientos/MovimientosController/listMovimientos';
+
+
+// PagosCRM routes
+$route['api/pagoscrm'] = 'PagosCRM/PagoscrmController/listPayments';

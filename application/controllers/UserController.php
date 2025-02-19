@@ -45,10 +45,13 @@ class UserController extends CI_Controller {
                 if($user) {
                     echo json_encode($user);
                 } else {
-                    echo json_encode(['error' => 'Usuario no encontrado']);
+                    echo json_encode([
+                        'error' => 'Usuario no encontrado',
+                        'status' => 'error']);
                 }
             } else {
-                echo json_encode(['error' => 'Token inválido']);
+                echo json_encode(['error' => 'Token inválido',
+                    'status' => 'error']);
             }
         }catch(Exception $e) {
             $error = array(

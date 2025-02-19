@@ -3,7 +3,7 @@
 class AuthModel extends CI_Model {
 
     function check_login($email, $password) {
-        $this->db->select('id, nombre, usr, permisos,
+        $this->db->select('id, nombre, usr,
         tipostatus_id, rol_id, sitio_id');
         $this->db->from('usuario');
         $this->db->where('usr', $email);
