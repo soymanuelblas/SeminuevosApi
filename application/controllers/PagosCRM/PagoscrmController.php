@@ -63,9 +63,7 @@ class PagoscrmController extends CI_Controller {
             // Obtener fechas desde los parámetros de la URL
             $fInicio = $jsonData['fInicio'];
             $fUltima = $jsonData['fUltima'];
-
-            log_message('info', 'Fechas recibidas: ' . $fInicio . ' - ' . $fUltima);
-
+            
             $result = $this->PagoscrmModel->obtener_pagos($fInicio, $fUltima);
 
             if($result) {
