@@ -30,11 +30,9 @@ class PagoscrmModel extends CI_Model {
         $this->db->join('razon_social AS RS', 'RS.id = apCRM.razon_id', 'left');
         $this->db->join('itemMercaLib AS iMP', 'iMP.id = apCRM.item_id', 'left');
         $this->db->join('tipostatus ts', 'ts.id = apCRM.estadoPago', 'left');
-        
-        if($fInicio != null && $fUltima != null) {
-            $this->db->where('apCRM.fechaPago >=', $fInicio);
-            $this->db->where('apCRM.fechaPago <=', $fUltima);
-        }
+   
+        $this->db->where('pCRM.fecha >=', $fInicio);
+        $this->db->where('pCRM.fecha <=', $fUltima);
 
         $query = $this->db->get();
         return $query->result();

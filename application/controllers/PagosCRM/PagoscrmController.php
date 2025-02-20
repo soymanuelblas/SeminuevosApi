@@ -50,7 +50,7 @@ class PagoscrmController extends CI_Controller {
 
             $info = json_decode($valid);
             $id = isset($info->data->id) ? $info->data->id : 0;
-            
+
             if($id != 1) {
                 echo json_encode([
                     'error' => 'No tienes permisos para realizar esta acción',
@@ -61,8 +61,10 @@ class PagoscrmController extends CI_Controller {
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
             // Obtener fechas desde los parámetros de la URL
-            $fInicio = json_decode($jsonData['fInicio']);
-            $fUltima = json_decode($jsonData['fUltima']);
+            $fInicio = $jsonData['fInicio'];
+            $fUltima = $jsonData['fUltima'];
+
+            log_message('info', 'Fechas recibidas: ' . $fInicio . ' - ' . $fUltima);
 
             $result = $this->PagoscrmModel->obtener_pagos($fInicio, $fUltima);
 
