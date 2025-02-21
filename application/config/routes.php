@@ -82,3 +82,6 @@ $route['api/movimientos'] = 'Movimientos/MovimientosController/listMovimientos';
 
 // PagosCRM routes
 $route['api/pagoscrm'] = 'PagosCRM/PagoscrmController/listPayments';
+
+// Vehiculos routes
+$route['api/listvehiculos'] = 'Vehiculos/VehiculosController/listVehiculos';
