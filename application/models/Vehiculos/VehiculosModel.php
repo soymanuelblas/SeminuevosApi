@@ -83,5 +83,37 @@ class VehiculosModel extends CI_Model {
     
         return $result;
     }
+
+    public function obtenerGarantia() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 39);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerTipoVehiculo() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 2);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerTipoStatus() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 17);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerColor() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 16);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
     
 }

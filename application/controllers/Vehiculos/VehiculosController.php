@@ -166,4 +166,182 @@ class VehiculosController extends CI_Controller {
                 'status' => 'error']);
         }
     }
+
+    public function listGarantia() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+            $result = $this->VehiculosModel->obtenerGarantia();
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron garantias',
+                    'status' => 'error']);
+            }
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar las garantias',
+                'status' => 'error']);
+        }
+    }
+
+    public function listTipoVehiculo() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $result = $this->VehiculosModel->obtenerTipoVehiculo();
+
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron tipos de vehiculos',
+                    'status' => 'error']);
+            }
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar los tipos de vehiculos',
+                'status' => 'error']);
+        }
+    }
+
+    public function listTipoStatus() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $result = $this->VehiculosModel->obtenerTipoStatus();
+
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron tipos de status',
+                    'status' => 'error']);
+            }
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar los tipos de status',
+                'status' => 'error']);
+        }
+    }
+
+    public function listColor() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $result = $this->VehiculosModel->obtenerColor();
+
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron colores',
+                    'status' => 'error']);
+            }
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar los colores',
+                'status' => 'error']);
+        }
+    }
 }

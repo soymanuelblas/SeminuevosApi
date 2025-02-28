@@ -86,3 +86,18 @@ $route['api/pagoscrm'] = 'PagosCRM/PagoscrmController/listPayments';
 // Vehiculos routes
 $route['api/listvehiculos'] = 'Vehiculos/VehiculosController/listVehiculos';
 $route['api/updatevehiculo'] = 'Vehiculos/VehiculosController/updateVehiculos';
+
+// Vehiculos Garantia routes
+$route['api/listgarantia'] = 'Vehiculos/VehiculosController/listGarantia';
+
+// Vehiculos TipoVehiculo routes
+$route['api/listtipovehiculo'] = 'Vehiculos/VehiculosController/listTipoVehiculo';
+
+// Vehiculos TipoStatus routes
+$route['api/listtipostatus'] = 'Vehiculos/VehiculosController/listTipoStatus';
+
+// Vehiculos Color routes
+$route['api/listcolor'] = 'Vehiculos/VehiculosController/listColor';
+
+// Facturas routes
+$route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
