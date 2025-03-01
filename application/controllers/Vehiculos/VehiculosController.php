@@ -75,11 +75,70 @@ class VehiculosController extends CI_Controller {
         }
     }
 
-    public function updateVehiculos() {
+    public function listVehiculoById() {
         try {
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
             if (empty($headerToken)) {
                 log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $info = json_decode($valid);
+            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+
+            if (empty($jsonData) || !$jsonData['vehiculo_id']) {
+                echo json_encode([
+                    'error' => 'No se proporcionó el ID del vehiculo',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $vehiculo_id = $jsonData['vehiculo_id'];
+
+            $result = $this->VehiculosModel->obtenerVehiculoPorId($vehiculo_id, $sitio_id);
+
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron vehiculos',
+                    'status' => 'error']);
+            }
+
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar los vehiculos',
+                'status' => 'error']);
+        }
+    }
+
+    public function updateVehiculos() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
                 echo json_encode(['error' => 'Token no proporcionado']);
                 exit;
             }
@@ -145,8 +204,6 @@ class VehiculosController extends CI_Controller {
                 'numero_placa' => $jsonData['numero_placa'], // 15 
                 'observaciones' => $jsonData['observaciones'] // 16
             ];
-
-            log_message('info', 'Datos a actualizar: ' . json_encode($data));
 
             $result = $this->VehiculosModel->actualizarVehiculo($jsonData['id'], $sitio_id, $data);
 

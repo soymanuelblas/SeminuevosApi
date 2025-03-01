@@ -61,11 +61,62 @@ class VehiculosModel extends CI_Model {
         return $query->result_array();
     }
 
+    public function obtenerVehiculoPorId($vehiculo_id, $sitio_id) {
+        $this->db->select("
+            vehiculo.id,
+            vehiculo.version_id AS idversion,
+            version.descripcion as version,
+            vehiculo.noexpediente,
+            vehiculo.numeroserie,
+            vehiculo.tipostatus_id AS statusvehiculoid,
+            statusvehiculo.descripcion AS statusvehiculo,
+            venta.id AS ventaid,
+            venta.descripcion AS venta,
+            vehiculo.precio,
+            vehiculo.kilometraje,
+            vehiculo.sitio_id AS sitioid,
+            sitio.domicilio1 AS domicilio,
+            vehiculo.tipo_vehiculo AS tipoid,
+            tipo.descripcion AS tipovehiculo,
+            vehiculo.color_id AS colorid,
+            color.descripcion AS color,
+            vehiculo.nomotor AS motor,
+            vehiculo.fecha AS fecha,
+            vehiculo.duenio AS duenioid,
+            duenio.descripcion AS duenio,
+            vehiculo.garantia AS garantiaid,
+            garantia.descripcion AS garantia,
+            vehiculo.precio_contado AS contado,
+            vehiculo.numero_placa AS placa,
+            vehiculo.duplicado AS duplicadoid,
+            duplicado.descripcion AS duplicado,
+            vehiculo.observaciones,
+            tipomarca.descripcion AS marca,
+            tipoannio.descripcion AS annio,
+            tipomodelo.descripcion AS modelo
+        ");
+        $this->db->from("vehiculo");
+        $this->db->join("tipostatus AS venta", "vehiculo.status_venta = venta.id", "left");
+        $this->db->join("version AS version", "vehiculo.version_id = version.id", "left");
+        $this->db->join("sitio AS sitio", "vehiculo.sitio_id = sitio.id", "left");
+        $this->db->join("tipostatus AS tipo", "vehiculo.tipo_vehiculo = tipo.id", "left");
+        $this->db->join("tipostatus AS color", "vehiculo.color_id = color.id", "left");
+        $this->db->join("tipostatus AS statusvehiculo", "vehiculo.tipostatus_id = statusvehiculo.id", "left");
+        $this->db->join("tipostatus AS duenio", "vehiculo.duenio = duenio.id", "left");
+        $this->db->join("tipostatus AS garantia", "vehiculo.garantia = garantia.id", "left");
+        $this->db->join("tipostatus AS duplicado", "vehiculo.duplicado = duplicado.id", "left");
+        $this->db->join("tipomodelo", "version.tipomodelo_id = tipomodelo.id", "left");
+        $this->db->join("tipomarca", "tipomarca.id = tipomodelo.tipomarca_id", "left");
+        $this->db->join("tipoannio", "version.tipoannio_id = tipoannio.id", "left");
+        $this->db->where("vehiculo.id", $vehiculo_id);
+        $this->db->where("vehiculo.sitio_id", $sitio_id);
+
+        $query = $this->db->get();
+
+        return $query->row_array();
+    }
+
     public function actualizarVehiculo($id, $sitio_id, $data) {
-        // Registrar los valores de entrada
-        log_message('debug', 'ID: ' . $id);
-        log_message('debug', 'Sitio ID: ' . $sitio_id);
-        log_message('debug', 'Data: ' . print_r($data, true));
     
         // Establecer las condiciones de la consulta
         $this->db->where('id', $id);
@@ -73,13 +124,6 @@ class VehiculosModel extends CI_Model {
     
         // Ejecutar la actualización
         $result = $this->db->update('vehiculo', $data);
-    
-        // Registrar el resultado de la actualización
-        if ($result) {
-            log_message('debug', 'Actualización exitosa');
-        } else {
-            log_message('error', 'Error en la actualización: ' . $this->db->last_query());
-        }
     
         return $result;
     }
