@@ -7,7 +7,11 @@ if(!function_exists('verifyAuthToken')) {
         
         $verification = $jwt->decode($token, $JwtSecret, ['HS256']);
 
+        if (isset($verification->exp) && $verification->exp < time()) {
+            return false;
+        }
         $verfication_json = $jwt->jsonEncode($verification);
+
         return $verfication_json;
     }
 }
