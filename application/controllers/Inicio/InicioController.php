@@ -712,19 +712,19 @@ class InicioController extends CI_Controller {
             $pagarMes = $this->InicioModel->obtenerPagarMes($sitio_id, $fecha_ini, $fecha_fin);
             $pagarTotales = $this->InicioModel->obtenerPagarTotales($sitio_id);
 
-            $data = array([
-                'vehiculosPorMes' => $vehiculosPorMes,
-                'vehiculosPorAnio' => $vehiculosPorAnio,
-                'oportunidadesAtrasadas' => $oportunidadesAtrasadas,
-                'oportunidadesProceso' => $oportunidadesProceso,
-                'oportunidadesNoLogradas' => $oportunidadesNoLogradas,
-                'cobrarTotales' => $cobrarTotales,
-                'cobrarMes' => $cobrarMes,
-                'cobrarVencidas' => $cobrarVencidas,
-                'pagarVencidas' => $pagarVencidas,
-                'pagarMes' => $pagarMes,
-                'pagarTotales' => $pagarTotales
-            ]);
+            $data = array(
+                $vehiculosPorMes,
+                $vehiculosPorAnio,
+                $oportunidadesAtrasadas,
+                $oportunidadesProceso,
+                $oportunidadesNoLogradas,
+                $cobrarTotales,
+                $cobrarMes,
+                $cobrarVencidas,
+                $pagarVencidas,
+                $pagarMes,
+                $pagarTotales
+            );
 
             if($data) {
                 echo json_encode([
