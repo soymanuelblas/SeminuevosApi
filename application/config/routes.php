@@ -102,3 +102,18 @@ $route['api/listcolor'] = 'Vehiculos/VehiculosController/listColor';
 
 // Facturas routes
 $route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
+
+// Inicio routes
+// $route['api/getvehiculosmes'] = 'Inicio/InicioController/getVehiculosPorMes';
+// $route['api/getvehiculosanio'] = 'Inicio/InicioController/getVehiculosPorAnio';
+// $route['api/getoportunidadesatrasadas'] = 'Inicio/InicioController/getOportunidadesAtrasadas';
+// $route['api/getoportunidadesproceso'] = 'Inicio/InicioController/getOportunidadesProceso';
+// $route['api/getoportunidadesnologradas'] = 'Inicio/InicioController/getOportunidadesNoLogradas';
+// $route['api/getcobrartotales'] = 'Inicio/InicioController/getCobrarTotales';
+// $route['api/getcobrarmes'] = 'Inicio/InicioController/getCobrarMes';
+// $route['api/getcobrarvencidas'] = 'Inicio/InicioController/getCobrarVencidas';
+// $route['api/getpagarvencidas'] = 'Inicio/InicioController/getPagarVencidas';
+// $route['api/getpagarmes'] = 'Inicio/InicioController/getPagarMes';
+// $route['api/getpagartotales'] = 'Inicio/InicioController/getPagarTotales';
+
+$route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
