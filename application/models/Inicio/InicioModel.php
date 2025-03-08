@@ -52,7 +52,7 @@ class InicioModel extends CI_Model {
         $this->db->where('prospecto.sitio_id', $sitio_id);
         $this->db->where('oportunidad.tipostatus_id', 5163);
         if($today != '') {
-            $this->db->where("DATE_FORMAT(oportunidad.fecha, '%Y-%m-%d') < '$today'", NULL, FALSE);
+            $this->db->where("DATE_FORMAT(oportunidad.fecha_llegada, '%Y-%m-%d') < '$today'", NULL, FALSE);
         }
         
         return $this->db->get()->row_array();
