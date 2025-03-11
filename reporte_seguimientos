@@ -1,0 +1,14 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `reporte_seguimientos`(IN `_fechaini` DATE, IN `_fechafin` DATE, IN `_sitio` VARCHAR(50) CHARSET utf8)
+BEGIN
+
+
+SELECT prospecto.nombre, oportunidad.id, tipostatus.descripcion AS statusoportunidad, COUNT(seguimiento.oportunidad_id) AS count, obtener_primero(oportunidad.id,_fechaini) AS primerstatus, obtener_ultimo(oportunidad.id,_fechafin) AS ultimostatus
+                    FROM prospecto 
+                    LEFT JOIN oportunidad ON oportunidad.prospecto_id = prospecto.id 
+                    LEFT JOIN seguimiento ON seguimiento.oportunidad_id = oportunidad.id 
+                    LEFT JOIN tipostatus ON tipostatus.id = oportunidad.tipostatus_id 
+                    WHERE DATE(seguimiento.fechacontacto) BETWEEN _fechaini AND _fechafin AND prospecto.sitio_id = _sitio GROUP BY oportunidad.id;
+
+END$$
+DELIMITER ;
