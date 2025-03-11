@@ -117,3 +117,8 @@ $route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
 // $route['api/getpagartotales'] = 'Inicio/InicioController/getPagarTotales';
 
 $route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
+
+// CRM routes
+$route['api/listcrmstatistics'] = 'CRM/CRMController/listStatistics';
+// CRM routes - Prospectos
+$route['api/listprospectos'] = 'CRM/ProspectosController/listProspectos';

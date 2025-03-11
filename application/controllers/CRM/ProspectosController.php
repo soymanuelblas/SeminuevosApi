@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class CRMController extends CI_Controller {
+class ProspectosController extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('CRM/CRMModel');
+        $this->load->model('CRM/ProspectosModel');
         $this->load->helper('verifyAuthToken_helper');
         
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -22,7 +22,7 @@ class CRMController extends CI_Controller {
         header('Access-Control-Allow-Credentials: true');
     }
 
-    public function listStatistics() {
+    public function listProspectos() {
         try {
             // Verificar si el encabezado Authorization llega correctamente
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
@@ -56,31 +56,27 @@ class CRMController extends CI_Controller {
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
 
-            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+            $prospectos = $this->ProspectosModel->obtenerProspectos($sitio_id);
 
-            $fecha_ini = $this->input->post('fecha_ini');
-            $fecha_fin = $this->input->post('fecha_fin');
-
-            $result = $this->CRMModel->obtenerDatosProspectos($fecha_ini, $fecha_fin, $sitio_id);
-
-            if($result) {
+            if($prospectos) {
                 echo json_encode([
-                    'data' => $result,
-                    'status' => 'success'
+                    'data' => $prospectos,
+                    'status' => 'success',
                 ]);
             } else {
                 echo json_encode([
-                    'message' => 'No se encontraron datos',
                     'status' => 'error',
+                    'message' => 'No se encontraron prospectos'
                 ]);
             }
-        }catch (Exception $e) {
+        }catch(Exception $e) {
             echo json_encode([
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
         }
     }
+
 
 
 }
