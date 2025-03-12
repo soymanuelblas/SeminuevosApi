@@ -58,8 +58,16 @@ class CRMController extends CI_Controller {
 
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
-            $fecha_ini = $this->input->post('fecha_ini');
-            $fecha_fin = $this->input->post('fecha_fin');
+            $fecha_ini = $jsonData['fecha_ini'];
+            $fecha_fin = $jsonData['fecha_fin'];
+
+            if (!DateTime::createFromFormat('Y-m-d', $fecha_ini) || !DateTime::createFromFormat('Y-m-d', $fecha_fin)) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Formato de fecha no válido'
+                ]);
+                return;
+            }
 
             $result = $this->CRMModel->obtenerDatosProspectos($fecha_ini, $fecha_fin, $sitio_id);
 
