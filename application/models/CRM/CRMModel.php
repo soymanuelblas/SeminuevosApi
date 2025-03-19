@@ -118,9 +118,13 @@ class CRMModel extends CI_Model {
             }
         }
     }
-
     return $totales;
-}
+    }
+
+    public function obtenerTablasProspectos($fecha_ini, $fecha_fin, $sitio_id) {
+        $query = $this->db->query("CALL reporte_seguimientos(?, ?, ?)", array($fecha_ini, $fecha_fin, $sitio_id));
+        return $query->result();
+    }
 
     /**
      * Función principal que obtiene todos los datos del reporte.
@@ -144,11 +148,14 @@ class CRMModel extends CI_Model {
         // Calcular el total de registros
         $totalregistros = array_sum($totales);
 
+        $datostabla = $this->obtenerTablasProspectos($fecha_ini, $fecha_fin, $sitio_id);
+
         // Retornar todos los datos
         return [
             'totales' => $totales,
             'porcentajes' => $porcentajes,
-            'totalregistros' => $totalregistros
+            'totalregistros' => $totalregistros,
+            'datostabla' => $datostabla
         ];
     }
 }
