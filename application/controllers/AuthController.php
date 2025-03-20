@@ -66,7 +66,7 @@ class AuthController extends CI_Controller {
                     'sitio_id' => $result['sitio_id']
                 ],
                 'iat' => time(),
-                'exp' => time() + (60 * 60 * 24 * 5)
+                'exp' => time() + (60 * 60)
             ];
 
             $token = $jwt->encode($payload, $JwtSecret, 'HS256');
