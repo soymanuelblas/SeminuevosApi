@@ -1,6 +1,6 @@
 <?php
 
-if(!function_exists('verifyAuthToken')) {
+if(!function_exists('verifyauthtoken')) {
     function verifyAuthToken($token) {
         $jwt = new JWT();
         $JwtSecret = getenv('SECRET_KEY');

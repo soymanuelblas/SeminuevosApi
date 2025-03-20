@@ -6,7 +6,7 @@ class ProspectosController extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('CRM/ProspectosModel');
-        $this->load->helper('verifyAuthToken_helper');
+        $this->load->helper('verifyauthtoken_helper');
         
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');

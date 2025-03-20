@@ -580,8 +580,7 @@ $config['allowed_cors_headers'] = [
     'Accept',
     'Access-Control-Request-Method',
     'Access-Control-Allow-Headers',
-    'Access-Control-Allow-Origin *',
-
+    'Access-Control-Allow-Origin',
 ];
 
 /*
@@ -610,7 +609,7 @@ $config['allowed_cors_methods'] = [
 | source domain
 |
 */
-$config['allow_any_cors_domain'] = FALSE;
+$config['allow_any_cors_domain'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -623,4 +622,4 @@ $config['allow_any_cors_domain'] = FALSE;
 | e.g. $config['allowed_origins'] = ['http://www.example.com', 'https://spa.example.com']
 |
 */
-$config['allowed_cors_origins'] = ['localhost', 'localhost:3000'];
+$config['allowed_cors_origins'] = [];

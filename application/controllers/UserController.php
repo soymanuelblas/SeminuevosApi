@@ -6,7 +6,7 @@ class UserController extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('UserModel');
-        $this->load->helper('verifyAuthToken_helper');
+        $this->load->helper('verifyauthtoken_helper');
         // CABECERAS HTTP NECESARIAS PARA PODER RECIBIR UNA SOLICITUD DESDE UN SERVIDOR EXTERNO
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
