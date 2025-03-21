@@ -122,3 +122,6 @@ $route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
 $route['api/listcrmstatistics'] = 'CRM/CRMController/listStatistics';
 // CRM routes - Prospectos
 $route['api/listprospectos'] = 'CRM/ProspectosController/listProspectos';
+
+// Usuarios routes
+$route['api/listusuarios'] = 'Usuarios/UsuarioController/listUsuarios';

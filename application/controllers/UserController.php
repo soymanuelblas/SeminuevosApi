@@ -43,7 +43,10 @@ class UserController extends CI_Controller {
                 $id = $info->data->id;
                 $user = $this->UserModel->get_user($id);
                 if($user) {
-                    echo json_encode($user);
+                    echo json_encode([
+                        'data' => $user,
+                        'status' => 'success'
+                    ]);
                 } else {
                     echo json_encode([
                         'error' => 'Usuario no encontrado',
