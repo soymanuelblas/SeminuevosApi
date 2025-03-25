@@ -11,4 +11,18 @@ class UsuariosModel extends CI_Model {
         return $query->result();
     }
 
+    public function actualizarUsuario($id, $data) {
+        $this->db->where('id', $id);
+        $this->db->update('usuario', $data);
+    }
+
+    // public function detalleUsuario($id) {
+    //     $this-db->select(
+    //         'id, nombre, usr, ts.descripcion as status
+    //         ');
+    //     $this->db->from('usuario as us');
+    //     $this->db->join('tipostatus as ts', 'us.tipostatus_id = ts.id', 'left');
+    //     $this->db->where('id', $id);
+    // }
+
 }
