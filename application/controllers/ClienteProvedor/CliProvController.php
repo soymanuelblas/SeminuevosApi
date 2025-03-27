@@ -75,6 +75,10 @@ class CliProvController extends CI_Controller {
                 ]);
                 exit;
             }
+
+            if($jsonData['tipocliente_id'] == 5302) {
+                $jsonData['tipocliente_id'] = 5300;
+            }
     
             // Preparar los datos para la inserción
             $data = [
@@ -94,9 +98,19 @@ class CliProvController extends CI_Controller {
                 'password' => 'X',
                 'localizacion' => 0
             ];
-    
+
+            $data_moral = [
+                'escriturapublica' => strtoupper($jsonData['escritura']),
+                'numeronotaria' => strtoupper($jsonData['num_notaria']),
+                'nombrenotario' => strtoupper($jsonData['nom_notario']),
+                'ciudadnotaria' => strtoupper($jsonData['cd_notaria']),
+                'fechaconstitucion' => $jsonData['fecha_constitucion'],
+                'PersonaMoral' => strtoupper($jsonData['nom_representante']),
+                'sitio_id' => $sitio
+            ];
+
             // Insertar en la base de datos
-            $result = $this->ClienteProvModel->add_cliente_provedor($sitio, $data);
+            $result = $this->ClienteProvModel->add_cliente_provedor($sitio, $data, $data_moral);
     
             if ($result) {
                 echo json_encode([
