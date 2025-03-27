@@ -136,81 +136,104 @@ class CliProvController extends CI_Controller {
 
     public function updateClienteProveedor() {
         try {
-            // TODO Implementar actualización de cliente/proveedor
-            // // Obtener el token de autorización
-            // $headerToken = $this->input->get_request_header('Authorization', TRUE);
-            // if (empty($headerToken)) {
-            //     echo json_encode(['error' => 'Token no proporcionado']);
-            //     exit;
-            // }
+            // Obtener el token de autorización
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
             
-            // // Validar formato del token
-            // $splitToken = explode(' ', $headerToken);
-            // if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
-            //     echo json_encode(['error' => 'Formato de token inválido']);
-            //     exit;
-            // }
+            // Validar formato del token
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+    
+            // Extraer y validar el token
+            $token = $splitToken[1];
+    
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                echo json_encode(['error' => 'Token inválido o mal formado']);
+                exit;
+            }
+    
+            $info = json_decode($valid);
+            $sitio = $info->data->sitio_id ?? null;
+            $usuario_id = $info->data->id ?? null;
 
-            // // Extraer y validar el token
-            // $token = $splitToken[1];
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
-            // $valid = verifyAuthToken($token);
-            // if (!$valid || !is_string($valid) || !json_decode($valid)) {
-            //     echo json_encode(['error' => 'Token inválido o mal formado']);
-            //     exit;
-            // }
+            // Validación básica de campos obligatorios
+            if (!$jsonData || empty($jsonData['id']) || empty($jsonData['nombre']) || 
+                empty($jsonData['rfc']) || empty($jsonData['telefono1']) || 
+                empty($jsonData['email']) || empty($jsonData['domicilio']) || 
+                empty($jsonData['colonia']) || empty($jsonData['cp']) || 
+                empty($jsonData['ciudad']) || empty($jsonData['estado']) || 
+                empty($jsonData['tipocliente_id'])) {
+                echo json_encode([
+                    'error' => 'Campos obligatorios faltantes',
+                    'status' => 'error'
+                ]);
+                exit;
+            }
 
-            // // Obtener los datos del cliente/proveedor
-            // $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+            // Campos opcionales con valores por defecto
+            $telefono2 = !empty($jsonData['telefono2']) ? $jsonData['telefono2'] : '';
+            
+            // Preparar datos básicos
+            $data = [
+                'id' => $jsonData['id'],
+                'nombre' => strtoupper($jsonData['nombre']),
+                'rfc' => strtoupper($jsonData['rfc']),
+                'telefono1' => $jsonData['telefono1'],
+                'telefono2' => $telefono2,
+                'email' => $jsonData['email'],
+                'domicilio' => strtoupper($jsonData['domicilio']),
+                'colonia' => strtoupper($jsonData['colonia']),
+                'cp' => $jsonData['cp'],
+                'ciudad' => strtoupper($jsonData['ciudad']),
+                'estado' => strtoupper($jsonData['estado']),
+                'tipocliente_id' => $jsonData['tipocliente_id'] == 5302 ? 5300 : $jsonData['tipocliente_id']
+            ];
 
-            // if (!$jsonData) {
-            //     echo json_encode(['error' => 'Datos no proporcionados']);
-            //     exit;
-            // }
+            // Datos de persona moral (solo si es cliente moral)
+            $data_moral = null;
+            if ($jsonData['tipocliente_id'] == 5302) {
+                if (empty($jsonData['escritura']) || empty($jsonData['num_notaria']) || 
+                    empty($jsonData['nom_notario']) || empty($jsonData['cd_notaria']) || 
+                    empty($jsonData['fecha_constitucion']) || empty($jsonData['nom_representante'])) {
+                    echo json_encode([
+                        'error' => 'Para cliente moral, todos los campos legales son requeridos',
+                        'status' => 'error'
+                    ]);
+                    exit;
+                }
+                
+                $data_moral = [
+                    'escriturapublica' => strtoupper($jsonData['escritura']),
+                    'numeronotaria' => strtoupper($jsonData['num_notaria']),
+                    'nombrenotario' => strtoupper($jsonData['nom_notario']),
+                    'ciudadnotaria' => strtoupper($jsonData['cd_notaria']),
+                    'fechaconstitucion' => $jsonData['fecha_constitucion'],
+                    'PersonaMoral' => strtoupper($jsonData['nom_representante'])
+                ];
+            }
 
-            // // Validar datos requeridos
-            // $requiredFields = ['id', 'nombre', 'rfc', 'telefono1', 'telefono2', 'email', 'domicilio', 'colonia', 'cp', 'ciudad', 'estado', 'tipocliente_id', 'tipostatus_id'];
-            // foreach ($requiredFields as $field) {
-            //     if (empty($jsonData[$field])) {
-            //         echo json_encode([
-            //             'error' => "El campo $field es requerido",
-            //             'status' => 'error'
-            //         ]);
-            //         exit;
-            //     }
-            // }
-
-            // // Preparar datos para la actualización
-            // $updateData = [
-            //     'id' => $jsonData['id'],
-            //     'nombre' => $jsonData['nombre'],
-            //     'domicilio' => $jsonData['domicilio'],
-            //     'colonia' => $jsonData['colonia'],
-            //     'cp' => $jsonData['cp'],
-            //     'ciudad' => $jsonData['ciudad'],
-            //     'estado' => $jsonData['estado'],
-            //     'rfc' => $jsonData['rfc'],
-            //     'telefono1' => $jsonData['telefono1'],
-            //     'telefono2' => $jsonData['telefono2'],
-            //     'email' => $jsonData['email'],
-            //     'tipocliente_id' => $jsonData['tipocliente_id'],
-            //     'tipostatus_id' => $jsonData['tipostatus_id']
-            // ];
-            // // Actualizar cliente/proveedor en la base de datos
-            // $result = $this->ClienteProvModel->updateClientProvider($jsonData['id'], $updateData);
-
-            // if ($result) {
-            //     echo json_encode([
-            //         'success' => 'Cliente/Proveedor actualizado correctamente',
-            //         'status' => 'success'
-            //     ]);
-            // } else {
-            //     echo json_encode([
-            //         'error' => 'Error al actualizar cliente/proveedor',
-            //         'status' => 'error'
-            //     ]);
-            // }
-
+            $result = $this->ClienteProvModel->updateClientProvider($jsonData['id'], $data, $data_moral);
+            
+            if ($result) {
+                echo json_encode([
+                    'success' => 'Cliente/Proveedor actualizado correctamente',
+                    'status' => 'success'
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'Error al actualizar cliente/proveedor',
+                    'status' => 'error'
+                ]);
+            }
         } catch (Exception $e) {
             log_message("Excepción capturada: " . $e->getMessage());
             echo json_encode([

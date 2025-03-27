@@ -59,18 +59,18 @@ class ClienteProvModel extends CI_Model {
         return $query->result_array();
     }
 
-    function updateClientProvider($id, $updateData) {
+    function updateClientProvider($id, $data, $data_moral) {
         try {
             $this->db->where('id', $id);
-            $this->db->update('clientes', $updateData);
-    
-            // Verificar si se actualizó alguna fila
-            if ($this->db->affected_rows() > 0) {
-                return true;
-            } else {
-                // No se actualizó ninguna fila (posiblemente el ID no existe)
-                return false;
+            $this->db->update('clientes', $data);
+            
+            if($data_moral != null) {
+                $this->db->where('cliente_id', $id);
+                $this->db->update('cliente_moral', $data_moral);
             }
+            log_message('info', "updateClientProvider: " . $this->db->last_query());
+            log_message('info', "updateClientProvider: " . $this->db->affected_rows());
+            return $this->db->affected_rows() > 0;
         } catch (Exception $e) {
             log_message('error', "Error en updateClientProvider: " . $e->getMessage());
             return false;
