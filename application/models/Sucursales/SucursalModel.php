@@ -39,14 +39,19 @@ class SucursalModel extends CI_Model {
 
         $razonsocial_id = $query2->row()->razonsocial_id;
 
-        $this->db->select('id, nombre, domicilio1, domicilio2, ciudad, estado, cp, pais, telefono1, telefono2, contacto, correo, pass_correo');
+        $this->db->select('
+            sitio.id, sitio.nombre, 
+            sitio.domicilio1, sitio.domicilio2,
+            sitio.ciudad, ts.descripcion as estado, 
+            sitio.cp, sitio.pais, sitio.telefono1, sitio.telefono2, 
+            sitio.contacto, sitio.correo, sitio.pass_correo');
         $this->db->from('sitio');
+        $this->db->join('tipostatus as ts', 'sitio.estado = ts.id', 'left');
         $this->db->where('razonsocial_id', $razonsocial_id);
 
         $query = $this->db->get();
 
         return $query->result();
-
     }
 
 }
