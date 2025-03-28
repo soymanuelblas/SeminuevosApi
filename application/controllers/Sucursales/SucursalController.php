@@ -170,10 +170,10 @@ class SucursalController extends CI_Controller {
 
         }catch(Exception $e){
             echo json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'status' => 'error'
-                ]);
+            [
+                'error' => $e->getMessage(),
+                'status' => 'error'
+            ]);
         }
     }
 
