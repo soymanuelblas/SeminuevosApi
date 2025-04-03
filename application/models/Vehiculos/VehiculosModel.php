@@ -160,4 +160,52 @@ class VehiculosModel extends CI_Model {
         return $query->result_array();
     }
     
+    public function obtenerMarca() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipomarca');
+        $this->db->order_by('descripcion', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /* Esta funcion es para obtener el modelo de vehiculo usando el id de
+       la marca con la que se relaciona, este query es usado para el contenido de
+       la lista de modelos en el formulario de crear vehiculo */
+    public function obtenerModelo($idmarca) {
+        $this->db->select('tm.id, tm.descripcion, ts.descripcion AS tipovehiculo');
+        $this->db->from('tipomodelo as tm');
+        $this->db->order_by('descripcion', 'ASC');
+        $this->db->where('tm.tipomarca_id', $idmarca);
+        $this->db->join('tipostatus as ts', 'ts.id = tm.tipovehiculo_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerVersion($idmodelo) {
+        $this->db->select('v.id, v.descripcion, ta.descripcion AS annio');
+        $this->db->from('version as v');
+        $this->db->join('tipoannio as ta', 'ta.id = v.tipoannio_id');
+        $this->db->order_by('ta.descripcion', 'ASC');
+        $this->db->where('tipomodelo_id', $idmodelo);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerDuenio() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 38);
+        $this->db->order_by('descripcion', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerDuplicado() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 53);
+        $this->db->order_by('descripcion', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 }

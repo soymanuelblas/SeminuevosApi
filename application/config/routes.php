@@ -99,6 +99,21 @@ $route['api/listtipostatus'] = 'Vehiculos/VehiculosController/listTipoStatus';
 // Vehiculos Color routes
 $route['api/listcolor'] = 'Vehiculos/VehiculosController/listColor';
 
+// Vehiculos Marca routes
+$route['api/listmarca'] = 'Vehiculos/VehiculosController/listMarca';
+
+// Vehiculos Dueño routes
+$route['api/listduenio'] = 'Vehiculos/VehiculosController/listDuenio';
+
+// Vehiculos Duplicado routes
+$route['api/listduplicado'] = 'Vehiculos/VehiculosController/listDuplicado';
+
+// Vehiculos Modelo routes
+$route['api/listmodelo'] = 'Vehiculos/VehiculosController/listModelo';
+
+// Vehiculos Version routes
+$route['api/listversion'] = 'Vehiculos/VehiculosController/listVersion';
+
 // Facturas routes
 $route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
 
