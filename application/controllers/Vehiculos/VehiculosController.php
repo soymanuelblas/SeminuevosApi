@@ -61,13 +61,13 @@ class VehiculosController extends CI_Controller {
     }
 
     public function listVehiculos() {
-        try{
+        try {
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
             if (empty($headerToken)) {
                 echo json_encode(['error' => 'Token no proporcionado']);
                 exit;
             }
-
+    
             $splitToken = explode(' ', $headerToken);
             if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
                 echo json_encode(['error' => 'Formato de token inválido']);
@@ -83,32 +83,38 @@ class VehiculosController extends CI_Controller {
                     'status' => 'error']);
                 exit;
             }
-
+    
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
-
+    
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
-
-            $marca = $jsonData['marca'];
-            $modelo = $jsonData['modelo'];
-            $annio = $jsonData['annio'];
-            $expediente = $jsonData['expediente'];
-
+    
+            // Obtener parámetros sin escapar (para arrays)
+            $marca = isset($jsonData['marca']) ? $jsonData['marca'] : null;
+            $modelo = isset($jsonData['modelo']) ? $jsonData['modelo'] : null;
+            $annio = isset($jsonData['annio']) ? $jsonData['annio'] : null;
+            $expediente = isset($jsonData['expediente']) ? $jsonData['expediente'] : null;
+    
+            // Convertir a array si es un solo valor
+            if ($marca && !is_array($marca)) $marca = [$marca];
+            if ($modelo && !is_array($modelo)) $modelo = [$modelo];
+            if ($annio && !is_array($annio)) $annio = [$annio];
+            if ($expediente && !is_array($expediente)) $expediente = [$expediente];
+    
             $result = $this->VehiculosModel->obtenerVehiculos($sitio_id, $marca, $modelo, $annio, $expediente);
-
+    
             if($result){
                 echo json_encode([
                     'data' => $result,
                     'status' => 'success']);
             }else{
                 echo json_encode([
-                    'error' => 'No se encontraron vehiculos',
+                    'error' => 'No se encontraron vehiculos con los filtros aplicados',
                     'status' => 'error']);
             }
-
-        }catch(Exception $e){
+        } catch(Exception $e) {
             echo json_encode([
-                'error' => 'Error al listar los vehiculos',
+                'error' => 'Error al listar los vehiculos: ' . $e->getMessage(),
                 'status' => 'error']);
         }
     }
@@ -514,21 +520,11 @@ class VehiculosController extends CI_Controller {
             }
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
-            if (empty($jsonData)) {
-                echo json_encode([
-                    'error' => 'No se proporcionaron datos',
-                    'status' => 'error']);
-                exit;
+            if (!isset($jsonData['marcaid'])) {
+                $idmarca = null;
             }
 
-            if (!$jsonData['marcaid']) {
-                echo json_encode([
-                    'error' => 'No se proporcionó el ID de la marca',
-                    'status' => 'error']);
-                exit;
-            }
-
-            $result = $this->VehiculosModel->obtenerModelo($jsonData['marcaid']);
+            $result = $this->VehiculosModel->obtenerModelo($idmarca);
 
             if($result){
                 echo json_encode([
@@ -693,6 +689,51 @@ class VehiculosController extends CI_Controller {
         }catch(Exception $e){
             echo json_encode([
                 'error' => 'Error al listar los duplicados',
+                'status' => 'error']);
+        }
+    }
+
+    public function listAnnio() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                log_message('error', 'Token no proporcionado');
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                log_message('error', 'Formato de token inválido');
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+            $token = $splitToken[1];
+
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                log_message('error', 'Token inválido o mal formado');
+                echo json_encode([
+                    'error' => 'Token inválido o mal formado',
+                    'status' => 'error']);
+                exit;
+            }
+
+            $result = $this->VehiculosModel->obtenerAnnio();
+
+            if($result){
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success']);
+            }else{
+                echo json_encode([
+                    'error' => 'No se encontraron annio',
+                    'status' => 'error']);
+            }
+        }catch(Exception $e){
+            echo json_encode([
+                'error' => 'Error al listar los annio',
                 'status' => 'error']);
         }
     }

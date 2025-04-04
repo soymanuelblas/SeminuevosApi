@@ -114,6 +114,9 @@ $route['api/listmodelo'] = 'Vehiculos/VehiculosController/listModelo';
 // Vehiculos Version routes
 $route['api/listversion'] = 'Vehiculos/VehiculosController/listVersion';
 
+// Vehiculos TipoAnio routes
+$route['api/listannio'] = 'Vehiculos/VehiculosController/listAnnio';
+
 // Facturas routes
 $route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
 

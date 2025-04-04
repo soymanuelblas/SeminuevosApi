@@ -43,13 +43,13 @@ class VehiculosModel extends CI_Model {
 
         // Filtros opcionales
         if (!empty($marca)) {
-            $this->db->where_in('marca.id', $marca);
+            $this->db->where_in('marca.descripcion', $marca);
         }
         if (!empty($modelo)) {
-            $this->db->where_in('modelo.id', $modelo);
+            $this->db->where_in('modelo.descripcion', $modelo);
         }
         if (!empty($annio)) {
-            $this->db->where_in('annio.id', $annio);
+            $this->db->where_in('annio.descripcion', $annio);
         }
         if (!empty($expediente)) {
             $this->db->where_in('vehiculo.noexpediente', $expediente);
@@ -174,7 +174,9 @@ class VehiculosModel extends CI_Model {
         $this->db->select('tm.id, tm.descripcion, ts.descripcion AS tipovehiculo');
         $this->db->from('tipomodelo as tm');
         $this->db->order_by('descripcion', 'ASC');
-        $this->db->where('tm.tipomarca_id', $idmarca);
+        if($idmarca != null) {
+            $this->db->where('tm.tipomarca_id', $idmarca);
+        }
         $this->db->join('tipostatus as ts', 'ts.id = tm.tipovehiculo_id');
         $query = $this->db->get();
         return $query->result_array();
@@ -203,6 +205,14 @@ class VehiculosModel extends CI_Model {
         $this->db->select('id, descripcion');
         $this->db->from('tipostatus');
         $this->db->where('tipo', 53);
+        $this->db->order_by('descripcion', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    public function obtenerAnnio() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipoannio');
         $this->db->order_by('descripcion', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
