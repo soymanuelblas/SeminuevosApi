@@ -5,7 +5,7 @@ class VehiculosModel extends CI_Model {
     public function obtenerVehiculos($sitio_id, $marca, $modelo, $annio, $expediente) {
         $this->db->select(
             "vehiculo.id, 
-            version.descripcion as version, 
+            version.descripcion as version,
             vehiculo.noexpediente,
             vehiculo.duplicado,
             vehiculo.numeroserie,
@@ -116,6 +116,14 @@ class VehiculosModel extends CI_Model {
         return $query->row_array();
     }
 
+    public function insertarVehiculo($data) {
+        $this->db->trans_start();
+        $this->db->insert('vehiculo', $data);
+        $insert_id = $this->db->insert_id();
+        $this->db->trans_complete();
+        return $insert_id;
+    }
+
     public function actualizarVehiculo($id, $sitio_id, $data) {
     
         // Establecer las condiciones de la consulta
@@ -169,7 +177,8 @@ class VehiculosModel extends CI_Model {
     }
     /* Esta funcion es para obtener el modelo de vehiculo usando el id de
        la marca con la que se relaciona, este query es usado para el contenido de
-       la lista de modelos en el formulario de crear vehiculo */
+       la lista de modelos en el formulario de crear vehiculo y para el filtro
+       de los dropdowns */
     public function obtenerModelo($idmarca) {
         $this->db->select('tm.id, tm.descripcion, ts.descripcion AS tipovehiculo');
         $this->db->from('tipomodelo as tm');
@@ -209,7 +218,7 @@ class VehiculosModel extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
+    
     public function obtenerAnnio() {
         $this->db->select('id, descripcion');
         $this->db->from('tipoannio');

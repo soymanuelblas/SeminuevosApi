@@ -51,11 +51,64 @@ class VehiculosController extends CI_Controller {
 
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
-            
+            if (empty($jsonData)) {
+                echo json_encode(['error' => 'No se proporcionaron datos']);
+                exit;
+            }
 
+            $requiredFields = [
+                'version', 'tipo_vehiculo', 'color', 'noexpediente', 'numeroserie',
+                'nomotor', 'kilometraje', 'precio_venta', 'precio_contado', 'duenios',
+                'garantia', 'placa', 'duplicado', 'observaciones'
+            ];
+
+            foreach ($requiredFields as $field) {
+                if (empty($jsonData[$field])) {
+                    echo json_encode([
+                        'error' => "Falta el dato: $field",
+                        'status' => 'error'
+                    ]);
+                    exit;
+                }
+            }
+
+            $data = [
+                'sitio_id' => $sitio_id,
+                'version_id' => $jsonData['version'], // 3 
+                'tipo_vehiculo' => $jsonData['tipo_vehiculo'], // 4 
+                'color_id' => $jsonData['color'], // 5 
+                'noexpediente' => $jsonData['noexpediente'],  // 6 
+                'numeroserie' => $jsonData['numeroserie'], // 1
+                'nomotor' => $jsonData['nomotor'], // 7
+                'kilometraje' => $jsonData['kilometraje'],  // 8
+                'precio' => $jsonData['precio_venta'], // 9
+                'precio_contado' => $jsonData['precio_contado'], // 10
+                'duenio' => $jsonData['duenios'], // 11
+                'garantia' => $jsonData['garantia'], // 12
+                'status_venta' => 4081,
+                'duplicado' => $jsonData['duplicado'],
+                'numero_placa' => $jsonData['placa'],
+                'observaciones' => $jsonData['observaciones'],
+                'tipostatus_id' => 751,
+                'fecha' => date('Y-m-d H:i:s')
+            ];
+
+            log_message('debug', 'Inserting vehicle data: ' . json_encode($data)); // Log the data being inserted
+
+            $result = $this->VehiculosModel->insertarVehiculo($data);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => 'Vehiculo agregado correctamente',
+                    'status' => 'success']);
+            } else {
+                echo json_encode([
+                    'error' => 'Error al agregar el vehiculo',
+                    'status' => 'error']);
+            }
         }catch(Exception $e){
             echo json_encode([
-                'error' => 'Error al agregar el vehiculo',
+                'error' => 'Error al agregar el vehiculo ' . $e->getMessage(),
                 'status' => 'error']);
         }
     }
@@ -466,7 +519,6 @@ class VehiculosController extends CI_Controller {
             // Validar token
             $valid = verifyAuthToken($token);
             if (!$valid || !is_string($valid) || !json_decode($valid)) {
-                log_message('error', 'Token inválido o mal formado');
                 echo json_encode([
                     'error' => 'Token inválido o mal formado',
                     'status' => 'error']);
@@ -519,6 +571,8 @@ class VehiculosController extends CI_Controller {
                 exit;
             }
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+
+            $idmarca = isset($jsonData['marcaid']) ? $jsonData['marcaid'] : null;
 
             if (!isset($jsonData['marcaid'])) {
                 $idmarca = null;
