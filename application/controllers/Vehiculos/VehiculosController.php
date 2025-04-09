@@ -93,8 +93,6 @@ class VehiculosController extends CI_Controller {
                 'fecha' => date('Y-m-d H:i:s')
             ];
 
-            log_message('debug', 'Inserting vehicle data: ' . json_encode($data)); // Log the data being inserted
-
             $result = $this->VehiculosModel->insertarVehiculo($data);
 
             if ($result) {

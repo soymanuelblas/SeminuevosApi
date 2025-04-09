@@ -57,8 +57,9 @@ class BankController extends CI_Controller {
             }
     
             $nombre = strtoupper($jsonData['nombre']);
+            $numero = $jsonData['numero'];
     
-            $result = $this->BankModel->add_bank_account($sitio, $nombre);
+            $result = $this->BankModel->add_bank_account($sitio, $nombre, $numero);
     
             if ($result) {
                 echo json_encode([
@@ -75,7 +76,7 @@ class BankController extends CI_Controller {
         }
     }
 
-    function listBankAccounts() {
+    public function listBankAccounts() {
         try {
             $headerToken = $this->input->get_request_header('Authorization', TRUE);
             if (empty($headerToken)) {
@@ -122,6 +123,71 @@ class BankController extends CI_Controller {
             exit;
         }
     }
+
+    public function updateBankAccount() {
+        try {
+            $headerToken = $this->input->get_request_header('Authorization', TRUE);
+            if (empty($headerToken)) {
+                echo json_encode(['error' => 'Token no proporcionado']);
+                exit;
+            }
+
+            $splitToken = explode(' ', $headerToken);
+            if (count($splitToken) !== 2 || $splitToken[0] !== 'Bearer') {
+                echo json_encode(['error' => 'Formato de token inválido']);
+                exit;
+            }
+    
+            // Extraer token
+            $token = $splitToken[1];
+    
+            // Validar token
+            $valid = verifyAuthToken($token);
+            if (!$valid || !is_string($valid) || !json_decode($valid)) {
+                echo json_encode(['error' => 'Token inválido o mal formado']);
+                exit;
+            }
+
+            $info = json_decode($valid);
+            $sitio = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+    
+            if (!$jsonData || empty($jsonData['id']) || empty($jsonData['nombre'])) {
+                echo json_encode([
+                    'error' => 'Los datos de la cuenta bancaria no pueden estar vacíos',
+                    'status' => 'error',]);
+                exit;
+            }
+
+            $id = $jsonData['id'];
+            $nombre = strtoupper($jsonData['nombre']);
+
+            $data = [
+                'nombre' => $nombre,
+            ];
+
+            $result = $this->BankModel->updateBankAccount($id, $data, $sitio);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => 'Cuenta bancaria actualizada correctamente',
+                    'status' => 'success',
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'Error al actualizar cuenta bancaria',
+                    'status' => 'error',
+                ]);
+            }
+        }catch (Exception $e) {
+            echo json_encode([
+                'message' => 'Error del servidor', 
+                'status' => 'error',]);
+            exit;
+        }
+    }
+
     // DELETE BY ID BANK ACCOUNT
     function deleteBankAccount() {
         try{

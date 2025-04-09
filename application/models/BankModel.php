@@ -2,7 +2,7 @@
 
 class BankModel extends CI_Model {
 
-    function add_bank_account($sitio, $nombre) {
+    function add_bank_account($sitio, $nombre, $numero) {
         $this->db->select('id');
         $this->db->from('operacion_caja');
         $this->db->where('razonsocial_id', $sitio);
@@ -13,9 +13,11 @@ class BankModel extends CI_Model {
         }
     
         $inicio_id = $query->row_array()['id'];
+
+        $cuenta = $nombre . ' ' . strval($numero);
     
         $data = array(
-            'nombre' => $nombre,
+            'nombre' => $cuenta,
             'inicio_id' => $inicio_id,
             'sitio_id' => $sitio
         );
@@ -41,6 +43,17 @@ class BankModel extends CI_Model {
             return false;
         }
         return $query->result_array();
+    }
+
+    public function updateBankAccount($id, $data, $sitio_id) {
+        $this->db->where('id', $id);
+        $this->db->where('sitio_id', $sitio_id);
+        $this->db->update('cuentas_bancarias', $data);
+    
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        }
+        return false;
     }
 
     public function deleteBankAccount($id, $sitio_id) {
