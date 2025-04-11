@@ -123,18 +123,6 @@ $route['api/listannio'] = 'Vehiculos/VehiculosController/listAnnio';
 $route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
 
 // Inicio routes
-// $route['api/getvehiculosmes'] = 'Inicio/InicioController/getVehiculosPorMes';
-// $route['api/getvehiculosanio'] = 'Inicio/InicioController/getVehiculosPorAnio';
-// $route['api/getoportunidadesatrasadas'] = 'Inicio/InicioController/getOportunidadesAtrasadas';
-// $route['api/getoportunidadesproceso'] = 'Inicio/InicioController/getOportunidadesProceso';
-// $route['api/getoportunidadesnologradas'] = 'Inicio/InicioController/getOportunidadesNoLogradas';
-// $route['api/getcobrartotales'] = 'Inicio/InicioController/getCobrarTotales';
-// $route['api/getcobrarmes'] = 'Inicio/InicioController/getCobrarMes';
-// $route['api/getcobrarvencidas'] = 'Inicio/InicioController/getCobrarVencidas';
-// $route['api/getpagarvencidas'] = 'Inicio/InicioController/getPagarVencidas';
-// $route['api/getpagarmes'] = 'Inicio/InicioController/getPagarMes';
-// $route['api/getpagartotales'] = 'Inicio/InicioController/getPagarTotales';
-
 $route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
 
 // CRM routes
@@ -144,3 +132,11 @@ $route['api/listprospectos'] = 'CRM/ProspectosController/listProspectos';
 
 // Usuarios routes
 $route['api/listusuarios'] = 'Usuarios/UsuarioController/listUsuarios';
+$route['api/updateusuario'] = 'Usuarios/UsuarioController/updateUsuario';
+
+// Usuarios routes - Status
+$route['api/liststatus'] = 'Usuarios/UsuarioController/listStatus';
+$route['api/listsitios'] = 'Usuarios/UsuarioController/listSitios';
+
+// Roles routes
+$route['api/listroles'] = 'Roles/RolesController/listRoles';
