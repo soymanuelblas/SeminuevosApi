@@ -3,6 +3,10 @@
 class BankModel extends CI_Model {
 
     function add_bank_account($sitio, $nombre, $numero) {
+
+
+        
+
         $this->db->select('id');
         $this->db->from('operacion_caja');
         $this->db->where('razonsocial_id', $sitio);
