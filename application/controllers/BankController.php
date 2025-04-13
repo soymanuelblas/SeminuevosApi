@@ -67,7 +67,7 @@ class BankController extends CI_Controller {
                     'status' => 'success',
                 ]);
             } else {
-                echo json_encode(['error' => 'Error al agregar cuenta bancaria', 'details' => $this->db->error()]);
+                echo json_encode(['error' => 'Error al agregar cuenta bancaria', 'status' => 'error']);
             }
             exit;
         } catch (Exception $e) {

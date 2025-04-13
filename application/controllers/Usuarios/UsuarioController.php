@@ -64,13 +64,14 @@ class UsuarioController extends CI_Controller {
                     'status' => 'success'
                 ]);
             } else {
+                log_message('error', 'No se encontraron usuarios');
                 echo json_encode([
-                    'error' => 'No se encontraron usuarios',
+                    'message' => 'No se encontraron usuarios',
                     'status' => 'error']);
             }
         }catch(Exception $e) {
             $error = array(
-                'error' => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'status' => 'error'
             );
             echo json_encode($error);
