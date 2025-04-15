@@ -30,6 +30,17 @@ class BankModel extends CI_Model {
         $inicio_id = $query->row_array()['id'];
         log_message('debug', 'ID de inicio obtenido: ' . $inicio_id);
 
+        if($inicio_id == null) {
+            $data_caja = array(
+                'tipo' => '1',
+                'descripcion' => 'INICIO DE CUENTA',
+                'valor' => '0',
+                'razonsocial_id' => $razonsocial_id
+            );
+            $this->db->insert('operacion_caja', $data_caja);
+            $inicio_id = $this->db->insert_id();
+        }
+
         // Concatenar el nombre y el número para formar el nombre de la cuenta
         $cuenta = $nombre . ' ' . strval($numero);
         log_message('debug', 'Nombre de la cuenta generado: ' . $cuenta);
