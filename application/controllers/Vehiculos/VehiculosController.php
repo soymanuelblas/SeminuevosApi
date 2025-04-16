@@ -246,72 +246,87 @@ class VehiculosController extends CI_Controller {
             }
             $token = $splitToken[1];
 
-            // Validar token
+            // Validar el token
             $valid = verifyAuthToken($token);
             if (!$valid || !is_string($valid) || !json_decode($valid)) {
                 log_message('error', 'Token inválido o mal formado');
                 echo json_encode([
                     'error' => 'Token inválido o mal formado',
-                    'status' => 'error']);
+                    'status' => 'error'
+                ]);
                 exit;
             }
 
+            // Decodificar el token
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+            log_message('debug', 'Sitio ID obtenido del token: ' . $sitio_id);
 
+            // Obtener los datos del cuerpo de la solicitud
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
-
             if (empty($jsonData)) {
+                log_message('error', 'No se proporcionaron datos en la solicitud');
                 echo json_encode([
                     'error' => 'No se proporcionaron datos',
-                    'status' => 'error']);
+                    'status' => 'error'
+                ]);
                 exit;
             }
+            log_message('debug', 'Datos recibidos: ' . json_encode($jsonData));
 
-            if (!$jsonData['id'] || !$jsonData['numeroserie'] || !$jsonData['tipo_vehiculo'] ||
-                !$jsonData['precio'] || !$jsonData['kilometraje'] || !$jsonData['color_id'] ||
-                !$jsonData['noexpediente'] || !$jsonData['status_venta'] || !$jsonData['duplicado'] ||
-                !$jsonData['numero_placa'] || !$jsonData['observaciones'] || !$jsonData['fecha'] ||
-                !$jsonData['duenio'] || !$jsonData['version_id'] || !$jsonData['precio_contado'] ||
-                !$jsonData['nomotor'] || !$jsonData['garantia']) { 
-
-                echo json_encode([
-                    'error' => 'Faltan datos',
-                    'status' => 'error']);
-                exit;
-            }
-
-            $data = [
-                'numeroserie' => $jsonData['numeroserie'], // 1
-                'tipo_vehiculo' => $jsonData['tipo_vehiculo'], // 2
-                'version_id' => $jsonData['version_id'], // 3 
-                'color_id' => $jsonData['color_id'], // 4 
-                'noexpediente' => $jsonData['noexpediente'],  // 5 
-                'nomotor' => $jsonData['nomotor'], // 6
-                'kilometraje' => $jsonData['kilometraje'],  // 7
-                'precio' => $jsonData['precio'], // 8
-                'precio_contado' => $jsonData['precio_contado'], // 9
-                'fecha' => $jsonData['fecha'],  // 10
-                'duenio' => $jsonData['duenio'], // 11 
-                'garantia' => $jsonData['garantia'], // 12
-                'status_venta' => $jsonData['status_venta'], // 13
-                'duplicado' => $jsonData['duplicado'], // 14
-                'numero_placa' => $jsonData['numero_placa'], // 15 
-                'observaciones' => $jsonData['observaciones'] // 16
+            // Validar que todos los campos requeridos estén presentes
+            $requiredFields = [
+                'id', 'numeroserie', 'tipo_vehiculo', 'precio', 'kilometraje', 'color_id',
+                'noexpediente', 'status_venta', 'duplicado', 'numero_placa', 'observaciones',
+                'duenio', 'version_id', 'precio_contado', 'nomotor', 'garantia'
             ];
-
-            $result = $this->VehiculosModel->actualizarVehiculo($jsonData['id'], $sitio_id, $data);
-
-            if ($result) {
-                echo json_encode([
-                    'success' => 'Vehiculo actualizado correctamente',
-                    'status' => 'success']);
-            } else {
-                echo json_encode([
-                    'error' => 'Error al actualizar los vehiculos',
-                    'status' => 'error']);
+            foreach ($requiredFields as $field) {
+                if (empty($jsonData[$field])) {
+                    log_message('error', "Falta el campo requerido: $field");
+                    echo json_encode([
+                        'error' => "Falta el campo requerido: $field",
+                        'status' => 'error'
+                    ]);
+                    exit;
+                }
             }
 
+            // Preparar los datos para la actualización
+            $data = [
+                'numeroserie' => $jsonData['numeroserie'],
+                'tipo_vehiculo' => $jsonData['tipo_vehiculo'],
+                'version_id' => $jsonData['version_id'],
+                'color_id' => $jsonData['color_id'],
+                'noexpediente' => $jsonData['noexpediente'],
+                'nomotor' => $jsonData['nomotor'],
+                'kilometraje' => $jsonData['kilometraje'],
+                'precio' => $jsonData['precio'],
+                'precio_contado' => $jsonData['precio_contado'],
+                'fecha' => date('Y-m-d H:i:s'),
+                'duenio' => $jsonData['duenio'],
+                'garantia' => $jsonData['garantia'],
+                'status_venta' => $jsonData['status_venta'],
+                'duplicado' => $jsonData['duplicado'],
+                'numero_placa' => $jsonData['numero_placa'],
+                'observaciones' => $jsonData['observaciones']
+            ];
+            log_message('debug', 'Datos preparados para la actualización: ' . json_encode($data));
+
+            // Llamar al modelo para actualizar el vehículo
+            $result = $this->VehiculosModel->actualizarVehiculo($jsonData['id'], $sitio_id, $data);
+            if ($result) {
+                log_message('debug', 'Vehículo actualizado correctamente');
+                echo json_encode([
+                    'success' => 'Vehículo actualizado correctamente',
+                    'status' => 'success'
+                ]);
+            } else {
+                log_message('error', 'Error al actualizar el vehículo');
+                echo json_encode([
+                    'error' => 'Error al actualizar los vehículos',
+                    'status' => 'error'
+                ]);
+            }
         } catch (Exception $e) {
             echo json_encode([
                 'error' => 'Error al actualizar los vehiculos ' . $e->getMessage(),

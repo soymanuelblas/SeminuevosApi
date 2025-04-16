@@ -155,7 +155,7 @@ class VehiculosModel extends CI_Model {
     public function obtenerTipoStatus() {
         $this->db->select('id, descripcion');
         $this->db->from('tipostatus');
-        $this->db->where('tipo', 17);
+        $this->db->where('tipo', 37);
         $query = $this->db->get();
         return $query->result_array();
     }
