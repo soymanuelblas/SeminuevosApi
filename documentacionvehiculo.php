@@ -438,20 +438,30 @@ function Nuevafactura(modal) {
 }
 
 function Nuevatenenecia(modal) {
+    //console.log("MB Tenencia 2025");
+
     var options = {
         modal: true,
         height: 300,
         width: 800
     };
-    $('#conte-modal2').load('tenencia.php?my_modal=' + modal + '&id=<?php echo $id ?>', function() {
+
+    //console.log("<?php echo $id ?>");
+
+    $('#conte-modal2').load('tenencia.php?&id=<?php echo $id ?>', function() {
+        //console.log("ABRIR TENENCIA MB");
+
         $('#bootstrap-modal2').modal({
             show: true,
             backdrop: 'static',
             keyboard: false
         });
+
         $("#bootstrap-modal2").on('hidden.bs.modal', function() {
             $('.doc').click();
         });
+
+        //console.log("asd");
     });
 }
 
