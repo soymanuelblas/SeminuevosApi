@@ -119,8 +119,12 @@ $route['api/listversion'] = 'Vehiculos/VehiculosController/listVersion';
 // Vehiculos TipoAnio routes
 $route['api/listannio'] = 'Vehiculos/VehiculosController/listAnnio';
 
-// Facturas routes
-$route['api/listfacturas'] = 'Facturas/FacturasController/listFacturas';
+// Vehiculos - Facturas routes
+$route['api/listfacturas'] = 'Vehiculos/Facturas/FacturasController/listFacturas';
+$route['api/addfactura'] = 'Vehiculos/Facturas/FacturasController/addFactura';
+
+$route['api/listtipofacturas'] = 'Vehiculos/Facturas/FacturasController/listTipoFacturas';
+$route['api/liststatusfacturas'] = 'Vehiculos/Facturas/FacturasController/listStatusFacturas';
 
 // Inicio routes
 $route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
