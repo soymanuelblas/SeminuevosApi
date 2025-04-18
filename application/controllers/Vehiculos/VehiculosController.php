@@ -282,7 +282,6 @@ class VehiculosController extends CI_Controller {
             ];
             foreach ($requiredFields as $field) {
                 if (empty($jsonData[$field])) {
-                    log_message('error', "Falta el campo requerido: $field");
                     echo json_encode([
                         'error' => "Falta el campo requerido: $field",
                         'status' => 'error'
@@ -310,18 +309,14 @@ class VehiculosController extends CI_Controller {
                 'numero_placa' => $jsonData['numero_placa'],
                 'observaciones' => $jsonData['observaciones']
             ];
-            log_message('debug', 'Datos preparados para la actualización: ' . json_encode($data));
 
-            // Llamar al modelo para actualizar el vehículo
             $result = $this->VehiculosModel->actualizarVehiculo($jsonData['id'], $sitio_id, $data);
             if ($result) {
-                log_message('debug', 'Vehículo actualizado correctamente');
                 echo json_encode([
                     'success' => 'Vehículo actualizado correctamente',
                     'status' => 'success'
                 ]);
             } else {
-                log_message('error', 'Error al actualizar el vehículo');
                 echo json_encode([
                     'error' => 'Error al actualizar los vehículos',
                     'status' => 'error'

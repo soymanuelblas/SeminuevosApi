@@ -108,10 +108,12 @@ class FacturasController extends CI_Controller {
 
     public function addFactura() {
         try {
+            // Validación de token
             $valid = $this->validate();
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
-
+    
+            // Obtener datos del POST
             $vehiculo_id = $this->input->post('idvehiculo');
             $tipo_factura = $this->input->post('tipofac');
             $expedida_por = $this->input->post('expedida');
@@ -142,52 +144,66 @@ class FacturasController extends CI_Controller {
             // Procesar archivo si existe
             $archivo = 'SIN ARCHIVO';
             if (!empty($_FILES['file']['name'])) {
-                // Crear estructura de directorios primero
-                $upload_path = FCPATH . "images/{$sitio_id}/{$vehiculo_id}/";
+                // Ruta base externa
+                $base_path = '/seminuevos/images/';
                 
+                // Verificar si el directorio base existe y es escribible
+                if (!is_writable($base_path)) {
+                    echo json_encode([
+                        'error' => 'El directorio base no tiene permisos de escritura',
+                        'status' => 'error'
+                    ]);
+                    return;
+                }
+    
+                // Ruta completa para este vehículo
+                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
+                
+                // Crear directorios si no existen
                 if (!file_exists($upload_path)) {
                     if (!mkdir($upload_path, 0777, true)) {
                         echo json_encode([
-                            'error' => 'No se pudo crear el directorio: ' . $upload_path,
-                            'status' => 'error'
+                            'error' => 'No se pudo crear el directorio de destino',
+                            'status' => 'error',
+                            'path' => $upload_path
                         ]);
                         return;
                     }
-                    chmod($upload_path, 777); // Forzar permisos
-                    mkdir($upload_path . 'thumbs', 0777, true);
+                    // Asegurar permisos
+                    chmod($upload_path, 0777);
                 }
     
-                // Configurar la biblioteca de carga DESPUÉS de crear el directorio
+                // Configuración de upload
                 $config = [
                     'upload_path' => $upload_path,
                     'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 40000, // 40MB
-                    'encrypt_name' => TRUE
+                    'max_size' => 40000,
+                    'encrypt_name' => true,
+                    'overwrite' => false,
+                    'remove_spaces' => true
                 ];
     
                 $this->load->library('upload', $config);
     
-                // Intentar subir el archivo
                 if (!$this->upload->do_upload('file')) {
                     $error = $this->upload->display_errors('', '');
                     log_message('error', 'Error al subir archivo: ' . $error);
                     echo json_encode([
                         'error' => 'Error al subir el archivo: ' . $error,
-                        'status' => 'error',
-                        'file_data' => $_FILES['file']
+                        'status' => 'error'
                     ]);
                     return;
                 }
     
                 $upload_data = $this->upload->data();
-                $archivo = "/images/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
+                $archivo = '/seminuevos/images/' . $sitio_id . '/' . $vehiculo_id . '/' . $upload_data['file_name'];
                 
-                // Verificar que el archivo realmente existe después de la carga
+                // Verificación final
                 if (!file_exists($upload_path . $upload_data['file_name'])) {
                     echo json_encode([
                         'error' => 'El archivo se subió pero no se encuentra en la ruta esperada',
                         'status' => 'error',
-                        // 'path' => $upload_path . $upload_data['file_name']
+                        'expected_path' => $upload_path . $upload_data['file_name']
                     ]);
                     return;
                 }
@@ -211,7 +227,7 @@ class FacturasController extends CI_Controller {
                     'status' => 'success',
                     'message' => 'Factura agregada correctamente',
                     'archivo' => $archivo,
-                    'ruta_completa' => base_url() . ltrim($archivo, '/')
+                    'ruta_completa' => $archivo // En este caso es ruta absoluta
                 ];
             } else {
                 $response = [
