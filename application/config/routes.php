@@ -131,6 +131,13 @@ $route['api/addtenencias'] = 'Vehiculos/Tenencias/TenenciasController/addTenenci
 $route['api/listestados'] = 'Vehiculos/Tenencias/TenenciasController/listEstados';
 $route['api/listannios'] = 'Vehiculos/Tenencias/TenenciasController/listAnnios';
 
+// Vehiculos - Imagenes routes
+$route['api/addprincipal'] = 'Vehiculos/Imagenes/ImagenesController/addPrincipal';
+$route['api/deleteprincipal'] = 'Vehiculos/Imagenes/ImagenesController/deletePrincipal';
+
+
+$route['api/listttipoimagen'] = 'Vehiculos/Imagenes/ImagenesController/listTipoImagen';
+
 // Inicio routes
 $route['api/listdatastatistic'] = 'Inicio/InicioController/listDataStatistic';
 
