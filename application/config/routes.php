@@ -120,14 +120,16 @@ $route['api/listversion'] = 'Vehiculos/VehiculosController/listVersion';
 $route['api/listannio'] = 'Vehiculos/VehiculosController/listAnnio';
 
 // Vehiculos - Facturas routes
-$route['api/listfacturas'] = 'Vehiculos/Facturas/FacturasController/listFacturas';
 $route['api/addfactura'] = 'Vehiculos/Facturas/FacturasController/addFactura';
+$route['api/listfacturas'] = 'Vehiculos/Facturas/FacturasController/listFacturas';
 // Lista de checkboxes para el formulario de agregar factura
 $route['api/listtipofacturas'] = 'Vehiculos/Facturas/FacturasController/listTipoFacturas';
 $route['api/liststatusfacturas'] = 'Vehiculos/Facturas/FacturasController/listStatusFacturas';
 
 // Vehiculos - Tenencias routes
 $route['api/addtenencias'] = 'Vehiculos/Tenencias/TenenciasController/addTenencias';
+$route['api/listtenencias'] = 'Vehiculos/Tenencias/TenenciasController/listTenencias';
+$route['api/updatetenencias'] = 'Vehiculos/Tenencias/TenenciasController/updateTenencias';
 $route['api/listestados'] = 'Vehiculos/Tenencias/TenenciasController/listEstados';
 $route['api/listannios'] = 'Vehiculos/Tenencias/TenenciasController/listAnnios';
 
