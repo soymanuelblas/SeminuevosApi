@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 // Vehiculos - Imagenes routes
-$route['api/addprincipal'] = 'Vehiculos/Imagenes/ImagenesController/addPrincipal';
-$route['api/deleteprincipal'] = 'Vehiculos/Imagenes/ImagenesController/deletePrincipal';
-
+$route['api/addimagen'] = 'Vehiculos/Imagenes/ImagenesController/addImagen';
+$route['api/deleteimagen'] = 'Vehiculos/Imagenes/ImagenesController/deleteImagen';
+$route['api/listimagen'] = 'Vehiculos/Imagenes/ImagenesController/listImagen';
 $route['api/listtipoimagen'] = 'Vehiculos/Imagenes/ImagenesController/listTipoImagen';

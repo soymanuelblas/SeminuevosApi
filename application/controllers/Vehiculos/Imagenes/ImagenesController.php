@@ -79,7 +79,7 @@ class ImagenesController extends CI_Controller {
         }
     }
 
-    public function addPrincipal() {
+    public function addImagen() {
         try {
             log_message('debug', 'Iniciando el método addPrincipal.');
 
@@ -97,7 +97,7 @@ class ImagenesController extends CI_Controller {
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
 
-            $vehiculo_id = $jsonData['vehiculo_id'] ?? null;
+            // $vehiculo_id = $jsonData['vehiculo_id'] ?? null;
 
             log_message('debug', 'Validación completada.');
 
@@ -176,7 +176,7 @@ class ImagenesController extends CI_Controller {
             log_message('debug', 'Datos preparados para insertar: ' . json_encode($data));
 
             // Insertar en la base de datos
-            $result = $this->ImagenesModel->agregarPrincipal($data);
+            $result = $this->ImagenesModel->agregarImagen($data, $sitio_id);
 
             if ($result) {
                 log_message('debug', 'Imagen principal agregada correctamente.');
@@ -200,7 +200,7 @@ class ImagenesController extends CI_Controller {
         }
     }
 
-    public function deletePrincipal() {
+    public function deleteImagen() {
         try {
             $valid = $this->validate();
 
@@ -211,7 +211,7 @@ class ImagenesController extends CI_Controller {
 
             $id = $jsonData['id'];
 
-            $result = $this->ImagenesModel->eliminarPrincipal($id, $sitio_id);
+            $result = $this->ImagenesModel->eliminarImagen($id, $sitio_id);
 
             if ($result) {
                 echo json_encode([
@@ -226,95 +226,48 @@ class ImagenesController extends CI_Controller {
             }
         }catch (Exception $e) {
             echo json_encode([
-                'error' => 'Error al agregar la imagen principal',
+                'error' => 'Error al eliminar la imagen principal',
                 'status' => 'error'
             ]);
         }
     }
 
-    public function addInterior() {
+    public function listImagen() {
         try {
+            $valid = $this->validate();
 
+            $info = json_decode($valid);
+            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+
+            $vehiculo_id = $jsonData['vehiculo_id'] ?? null;
+            $tipo = $jsonData['tipo'] ?? null;
+
+            if (empty($vehiculo_id) || empty($tipo)) {
+                echo json_encode([
+                    'error' => 'Datos incompletos',
+                    'status' => 'error'
+                ]);
+                return;
+            }
+
+            $result = $this->ImagenesModel->listarImagen($vehiculo_id, $tipo, $sitio_id);
+
+            if ($result) {
+                echo json_encode([
+                    'data' => $result,
+                    'status' => 'success'
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'No se encontraron imagenes',
+                    'status' => 'error'
+                ]);
+            }
         }catch (Exception $e) {
             echo json_encode([
-                'error' => 'Error al agregar la imagen interior',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function deleteInterior() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen interior',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function addExterior() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen exterior',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function deleteExterior() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen exterior',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function addLlantas() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen de llantas',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function deleteLlantas() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen de llantas',
-                'status' => 'error'
-            ]);
-        }
-    }
-
-    public function addImperfecciones() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen de imperfecciones',
-                'status' => 'error'
-            ]);
-        }
-    }
-    
-    public function deleteImperfecciones() {
-        try {
-
-        }catch (Exception $e) {
-            echo json_encode([
-                'error' => 'Error al agregar la imagen de imperfecciones',
+                'error' => 'Error al listar imagenes',
                 'status' => 'error'
             ]);
         }

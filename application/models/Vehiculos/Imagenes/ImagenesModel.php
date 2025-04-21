@@ -10,12 +10,23 @@ class ImagenesModel extends CI_Model {
         return $query->result();
     }
 
-    public function agregarPrincipal($data) {
+    public function agregarImagen($data, $sitio) {
+
+        $this->db->select('sitio_id');
+        $this->db->from('vehiculo');
+        $this->db->where('id', $data['vehiculo_id']);
+
+        $sitio_id = $this->db->get()->row()->sitio_id;
+
+        if($sitio_id != $sitio) {
+            return false;
+        }
+
         $this->db->insert('imagen', $data);
         return $this->db->insert_id();
     }
 
-    public function eliminarPrincipal($id, $sitio) {
+    public function eliminarImagen($id, $sitio) {
 
         $this->db->select('vehiculo_id');
         $this->db->from('imagen');
@@ -31,7 +42,6 @@ class ImagenesModel extends CI_Model {
 
         if($sitio_id == $sitio) {
             $this->db->where('vehiculo_id', $vehiculo_id);
-            $this->db->where('tipo', 6400);
             $this->db->delete('imagen');
             return true;
         } else {
@@ -39,5 +49,25 @@ class ImagenesModel extends CI_Model {
         }
     }
 
-    
+    public function listarImagen($vehiculo_id, $tipo, $sitio_id) {
+        $this->db->select('sitio_id');
+        $this->db->from('vehiculo');
+        $this->db->where('id', $vehiculo_id);
+        
+        $sitio = $this->db->get()->row()->sitio_id;
+
+        if($sitio != $sitio_id) {
+            return false;
+        }
+
+        $this->db->select('id, vehiculo_id, tipo, archivo');
+        $this->db->from('imagen');
+        $this->db->where('vehiculo_id', $vehiculo_id);
+        $this->db->where('tipo', $tipo);
+
+        return $this->db->get()->result();
+
+    }
+
+
 }
