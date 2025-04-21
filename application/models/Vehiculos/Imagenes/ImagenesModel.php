@@ -66,7 +66,6 @@ class ImagenesModel extends CI_Model {
         $this->db->where('tipo', $tipo);
 
         return $this->db->get()->result();
-
     }
 
 
