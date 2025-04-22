@@ -77,7 +77,6 @@ class EstadisticasController extends CI_Controller {
     
             if ($result) {
                 $response = [
-                    'status' => 'success',
                     'data' => [
                         'interesados' => [
                             'en_pausa' => [
@@ -103,7 +102,8 @@ class EstadisticasController extends CI_Controller {
                             'total' => $result['gastos'],
                             'detalles' => $result['detalle_gastos']
                         ]
-                    ]
+                    ],
+                    'status' => 'success',
                 ];
             } else {
                 $response = [
