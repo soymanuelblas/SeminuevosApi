@@ -19,14 +19,14 @@ class EstadisticasModel extends CI_Model {
             'lograda' => $total > 0 ? number_format(($conteos['lograda'] * 100) / $total, 2) : 0
         ];
 
-        $gastos = $this->obtenerGastos($vehiculo_id, $sitio_id);
+        // $gastos = $this->obtenerGastos($vehiculo_id, $sitio_id);
 
         return [
             'conteos' => $conteos,
             'porcentajes' => $porcentajes,
             'total' => $total,
             'gastos' => $gastos,
-            'detalle_gastos' => $this->obtenerDetalleGastos($vehiculo_id, $sitio_id)
+            // 'detalle_gastos' => $this->obtenerDetalleGastos($vehiculo_id, $sitio_id)
         ];
     }
 
@@ -46,44 +46,44 @@ class EstadisticasModel extends CI_Model {
         return $query->row()->total;
     }
 
-    private function obtenerGastos($vehiculo_id, $sitio_id) {
-        $this->db->select('SUM(formapago.importe) AS gastos_totales');
-        $this->db->from('operacion');
-        $this->db->join('formapago', 'formapago.operacion_id = operacion.id_interno AND formapago.sitio_id = operacion.sitio_id', 'left');
-        $this->db->join('operacion_caja', 'operacion_caja.id = operacion.tipo_operacion', 'left');
+    // private function obtenerGastos($vehiculo_id, $sitio_id) {
+    //     $this->db->select('SUM(formapago.importe) AS gastos_totales');
+    //     $this->db->from('operacion');
+    //     $this->db->join('formapago', 'formapago.operacion_id = operacion.id_interno AND formapago.sitio_id = operacion.sitio_id', 'left');
+    //     $this->db->join('operacion_caja', 'operacion_caja.id = operacion.tipo_operacion', 'left');
         
-        $this->db->where('operacion_caja.tipo', 2);
-        $this->db->where('formapago.formapago_id !=', '5034');
-        $this->db->where('formapago.tipostatus_id', '5210');
-        $this->db->where('operacion.vehiculo_id', $vehiculo_id);
+    //     $this->db->where('operacion_caja.tipo', 2);
+    //     $this->db->where('formapago.formapago_id !=', '5034');
+    //     $this->db->where('formapago.tipostatus_id', '5210');
+    //     $this->db->where('operacion.vehiculo_id', $vehiculo_id);
         
-        if ($sitio_id) {
-            $this->db->where('operacion.sitio_id', $sitio_id);
-        }
+    //     if ($sitio_id) {
+    //         $this->db->where('operacion.sitio_id', $sitio_id);
+    //     }
 
-        $query = $this->db->get();
-        return $query->row()->gastos_totales ?: 0;
-    }
+    //     $query = $this->db->get();
+    //     return $query->row()->gastos_totales ?: 0;
+    // }
 
-    private function obtenerDetalleGastos($vehiculo_id, $sitio_id) {
-        $this->db->select('operacion.id_interno AS id, formapago.importe, formapago.referencia AS descripcion, 
-                         DATE(formapago.fechaexpedicion) AS fecha, operacion_caja.descripcion AS operacion');
-        $this->db->from('operacion');
-        $this->db->join('formapago', 'formapago.operacion_id = operacion.id_interno AND formapago.sitio_id = operacion.sitio_id', 'left');
-        $this->db->join('operacion_caja', 'operacion_caja.id = operacion.tipo_operacion', 'left');
+    // private function obtenerDetalleGastos($vehiculo_id, $sitio_id) {
+    //     $this->db->select('operacion.id_interno AS id, formapago.importe, formapago.referencia AS descripcion, 
+    //                      DATE(formapago.fechaexpedicion) AS fecha, operacion_caja.descripcion AS operacion');
+    //     $this->db->from('operacion');
+    //     $this->db->join('formapago', 'formapago.operacion_id = operacion.id_interno AND formapago.sitio_id = operacion.sitio_id', 'left');
+    //     $this->db->join('operacion_caja', 'operacion_caja.id = operacion.tipo_operacion', 'left');
         
-        $this->db->where('operacion_caja.tipo', 2);
-        $this->db->where('formapago.formapago_id !=', '5034');
-        $this->db->where('formapago.tipostatus_id', '5210');
-        $this->db->where('operacion.vehiculo_id', $vehiculo_id);
+    //     $this->db->where('operacion_caja.tipo', 2);
+    //     $this->db->where('formapago.formapago_id !=', '5034');
+    //     $this->db->where('formapago.tipostatus_id', '5210');
+    //     $this->db->where('operacion.vehiculo_id', $vehiculo_id);
         
-        if ($sitio_id) {
-            $this->db->where('operacion.sitio_id', $sitio_id);
-        }
+    //     if ($sitio_id) {
+    //         $this->db->where('operacion.sitio_id', $sitio_id);
+    //     }
 
-        $this->db->order_by('formapago.fechaexpedicion', 'ASC');
+    //     $this->db->order_by('formapago.fechaexpedicion', 'ASC');
         
-        $query = $this->db->get();
-        return $query->result_array();
-    }
+    //     $query = $this->db->get();
+    //     return $query->result_array();
+    // }
 }

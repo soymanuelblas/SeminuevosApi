@@ -98,10 +98,6 @@ class EstadisticasController extends CI_Controller {
                             'total' => $result['total'],
                             'total_porcentaje' => 100
                         ],
-                        'gastos' => [
-                            'total' => $result['gastos'],
-                            'detalles' => $result['detalle_gastos']
-                        ]
                     ],
                     'status' => 'success',
                 ];
