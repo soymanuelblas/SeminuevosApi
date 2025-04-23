@@ -97,8 +97,6 @@ class ImagenesController extends CI_Controller {
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
 
-            // $vehiculo_id = $jsonData['vehiculo_id'] ?? null;
-
             log_message('debug', 'Validación completada.');
 
             // Leer datos JSON
