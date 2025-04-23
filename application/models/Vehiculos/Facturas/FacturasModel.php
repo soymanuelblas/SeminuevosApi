@@ -2,7 +2,18 @@
 
 class FacturasModel extends CI_Model {
 
-    public function agregarFactura($data) {
+    public function agregarFactura($sitio_id, $data) {
+
+        $this->db->select('sitio_id');
+        $this->db->from('vehiculo');
+        $this->db->where('id', $data['vehiculo_id']);
+        $sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+
+        // Validar si el sitio coincide
+        if ($sitio != $sitio_id) {
+            return false;
+        }
+
         return $this->db->insert('factura', $data);
     }
 

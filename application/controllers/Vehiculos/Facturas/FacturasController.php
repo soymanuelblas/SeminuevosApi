@@ -79,6 +79,105 @@ class FacturasController extends CI_Controller {
         }
         echo json_encode($response);
     }
+    
+    public function addFactura() {
+        try {
+            // Validación inicial
+            $valid = $this->validate();
+            $info = json_decode($valid);
+            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
+    
+            // Obtener datos (tanto POST como raw JSON)
+            $jsonData = $this->input->post() ?: json_decode(file_get_contents('php://input'), true);
+    
+            $vehiculo_id = $jsonData['idvehiculo'] ?? null;
+    
+            // Procesar archivo si existe
+            $archivo = 'SIN ARCHIVO';
+            if (!empty($_FILES['file']['name'])) {
+                // Ruta absoluta más confiable
+                $base_path = realpath(APPPATH . '../..') . '/images/';
+                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
+    
+                // Crear directorio si no existe
+                if (!file_exists($upload_path)) {
+                    mkdir($upload_path, 0777, true);
+                }
+    
+                $config = [
+                    'upload_path' => $upload_path,
+                    'allowed_types' => 'jpg|jpeg|png',
+                    'max_size' => 40000, // 40 MB
+                    'encrypt_name' => TRUE,
+                    'file_name' => uniqid() // Nombre único adicional
+                ];
+    
+                $this->load->library('upload', $config);
+    
+                if ($this->upload->do_upload('file')) {
+                    $upload_data = $this->upload->data();
+                    $archivo = "/images/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
+                } else {
+                    $error = $this->upload->display_errors();
+                    log_message('error', 'Error al subir archivo: ' . $error);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Error al subir el archivo',
+                        'upload_error' => $error
+                    ]);
+                    return;
+                }
+            }
+    
+            // Construir datos después de procesar el archivo
+            $data = [
+                'vehiculo_id' => $vehiculo_id,
+                'tipofactura_id' => $jsonData['tipofac'] ?? null,
+                'expedidapor' => $jsonData['expedida'] ?? null,
+                'folio' => $jsonData['folio'] ?? null,
+                'fecha' => $jsonData['fecha'] ?? null,
+                'archivo' => $archivo,
+                'tipostatus_id' => $jsonData['statusfac'] ?? null,
+            ];
+    
+            // Validación de campos requeridos
+            $required = ['vehiculo_id', 'tipofactura_id', 'expedidapor', 'folio', 'fecha', 'tipostatus_id'];
+            foreach ($required as $field) {
+                if (empty($data[$field])) {
+                    $response = [
+                        'status' => 'error',
+                        'message' => "Falta el campo requerido: $field",
+                        'data_received' => $jsonData
+                    ];
+                    echo json_encode($response);
+                    return;
+                }
+            }
+    
+            $result = $this->FacturasModel->agregarFactura($sitio_id, $data);
+    
+            if ($result) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Factura agregada correctamente',
+                    'archivo' => $archivo,
+                    'data' => $data
+                ];
+            } else {
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Error al agregar la factura en la base de datos'
+                ];
+            }
+            echo json_encode($response);
+        } catch (Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Error interno al procesar la factura',
+            ];
+            echo json_encode($response);
+        }
+    }
 
     public function listStatusFacturas() {
         try {
@@ -104,148 +203,6 @@ class FacturasController extends CI_Controller {
             );
         }
         echo json_encode($response);
-    }
-
-    public function addFactura() {
-        try {
-            // Validación de token
-            $valid = $this->validate();
-            $info = json_decode($valid);
-            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
-    
-            // Obtener datos del POST
-            $vehiculo_id = $this->input->post('idvehiculo');
-            $tipo_factura = $this->input->post('tipofac');
-            $expedida_por = $this->input->post('expedida');
-            $folio = $this->input->post('folio');
-            $fecha = $this->input->post('fecha');
-            $status = $this->input->post('statusfac');
-    
-            // Validar campos requeridos
-            $campos_requeridos = [
-                'idvehiculo' => $vehiculo_id,
-                'tipofac' => $tipo_factura,
-                'expedida' => $expedida_por,
-                'folio' => $folio,
-                'fecha' => $fecha,
-                'statusfac' => $status
-            ];
-    
-            foreach ($campos_requeridos as $campo => $valor) {
-                if (empty($valor)) {
-                    echo json_encode([
-                        'error' => 'El valor '.$campo.' es requerido',
-                        'status' => 'error'
-                    ]);
-                    return;
-                }
-            }
-    
-            // Procesar archivo si existe
-            $archivo = 'SIN ARCHIVO';
-            if (!empty($_FILES['file']['name'])) {
-                // Ruta base externa
-                $base_path = '/seminuevos/images/';
-                
-                // Verificar si el directorio base existe y es escribible
-                if (!is_writable($base_path)) {
-                    echo json_encode([
-                        'error' => 'El directorio base no tiene permisos de escritura',
-                        'status' => 'error'
-                    ]);
-                    return;
-                }
-    
-                // Ruta completa para este vehículo
-                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
-                
-                // Crear directorios si no existen
-                if (!file_exists($upload_path)) {
-                    if (!mkdir($upload_path, 0777, true)) {
-                        echo json_encode([
-                            'error' => 'No se pudo crear el directorio de destino',
-                            'status' => 'error',
-                            'path' => $upload_path
-                        ]);
-                        return;
-                    }
-                    // Asegurar permisos
-                    chmod($upload_path, 0777);
-                }
-    
-                // Configuración de upload
-                $config = [
-                    'upload_path' => $upload_path,
-                    'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 40000,
-                    'encrypt_name' => true,
-                    'overwrite' => false,
-                    'remove_spaces' => true
-                ];
-    
-                $this->load->library('upload', $config);
-    
-                if (!$this->upload->do_upload('file')) {
-                    $error = $this->upload->display_errors('', '');
-                    log_message('error', 'Error al subir archivo');
-                    echo json_encode([
-                        'error' => 'Error al subir el archivo',
-                        'status' => 'error'
-                    ]);
-                    return;
-                }
-    
-                $upload_data = $this->upload->data();
-                $archivo = '/seminuevos/images/' . $sitio_id . '/' . $vehiculo_id . '/' . $upload_data['file_name'];
-                
-                // Verificación final
-                if (!file_exists($upload_path . $upload_data['file_name'])) {
-                    echo json_encode([
-                        'error' => 'El archivo se subió pero no se encuentra en la ruta esperada',
-                        'status' => 'error',
-                        'expected_path' => $upload_path . $upload_data['file_name']
-                    ]);
-                    return;
-                }
-            }
-    
-            // Preparar datos para insertar
-            $data = [
-                'vehiculo_id' => $vehiculo_id,
-                'tipofactura_id' => $tipo_factura,
-                'expedidapor' => $expedida_por,
-                'folio' => $folio,
-                'fecha' => $fecha,
-                'archivo' => $archivo,
-                'tipostatus_id' => $status
-            ];
-    
-            $result = $this->FacturasModel->agregarFactura($data);
-    
-            if ($result) {
-                $response = [
-                    'status' => 'success',
-                    'message' => 'Factura agregada correctamente',
-                    'archivo' => $archivo,
-                    'ruta_completa' => $archivo // En este caso es ruta absoluta
-                ];
-            } else {
-                $response = [
-                    'status' => 'error',
-                    'message' => 'Error al agregar la factura'
-                ];
-            }
-    
-            echo json_encode($response);
-    
-        } catch (Exception $e) {
-            log_message('error', 'Error del servidor');
-            $response = [
-                'status' => 'error',
-                'message' => 'Error al agregar la factura'
-            ];
-            echo json_encode($response);
-        }
     }
 
     public function listFacturas() {
