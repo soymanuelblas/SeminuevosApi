@@ -90,7 +90,7 @@ class FacturasController extends CI_Controller {
             // Obtener datos (tanto POST como raw JSON)
             $jsonData = $this->input->post() ?: json_decode(file_get_contents('php://input'), true);
     
-            $vehiculo_id = $jsonData['idvehiculo'] ?? null;
+            $vehiculo_id = isset($jsonData['idvehiculo']) ? $jsonData['idvehiculo'] : null;
     
             // Procesar archivo si existe
             $archivo = 'SIN ARCHIVO';
@@ -132,12 +132,12 @@ class FacturasController extends CI_Controller {
             // Construir datos después de procesar el archivo
             $data = [
                 'vehiculo_id' => $vehiculo_id,
-                'tipofactura_id' => $jsonData['tipofac'] ?? null,
-                'expedidapor' => $jsonData['expedida'] ?? null,
-                'folio' => $jsonData['folio'] ?? null,
-                'fecha' => $jsonData['fecha'] ?? null,
+                'tipofactura_id' => isset($jsonData['tipofac']) ? $jsonData['tipofac'] : null,
+                'expedidapor' => isset($jsonData['expedida']) ? $jsonData['expedida'] : null,
+                'folio' => isset($jsonData['folio']) ? $jsonData['folio'] : null,
+                'fecha' => isset($jsonData['fecha']) ? $jsonData['fecha'] : null,
                 'archivo' => $archivo,
-                'tipostatus_id' => $jsonData['statusfac'] ?? null,
+                'tipostatus_id' => isset($jsonData['statusfac']) ? $jsonData['statusfac'] : null,
             ];
     
             // Validación de campos requeridos
@@ -280,7 +280,7 @@ class FacturasController extends CI_Controller {
             }
     
             // Mantener el archivo actual por defecto
-            $archivo = $factura_actual['archivo'] ?? 'SIN ARCHIVO';
+            $archivo = isset($factura_actual['archivo']) ? $factura_actual['archivo'] : 'SIN ARCHIVO';
     
             // Procesar archivo solo si se envía uno nuevo
             if (!empty($_FILES['file']['name'])) {

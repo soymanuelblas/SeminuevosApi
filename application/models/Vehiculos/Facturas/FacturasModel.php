@@ -7,7 +7,7 @@ class FacturasModel extends CI_Model {
         $this->db->select('sitio_id');
         $this->db->from('vehiculo');
         $this->db->where('id', $data['vehiculo_id']);
-        $sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+        $sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
 
         // Validar si el sitio coincide
         if ($sitio != $sitio_id) {
@@ -23,7 +23,7 @@ class FacturasModel extends CI_Model {
         $this->db->from('vehiculo');
         $this->db->where('id', $vehiculo_id);
         
-        $sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+        $sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
         
         // Validar si el sitio coincide
         if ($sitio != $sitio_id) {
@@ -123,7 +123,7 @@ class FacturasModel extends CI_Model {
             $this->db->select('sitio_id');
             $this->db->from('vehiculo');
             $this->db->where('id', $data['vehiculo_id']);
-            $nuevo_sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+            $nuevo_sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
             
             if ($nuevo_sitio != $sitio_id) {
                 return false;

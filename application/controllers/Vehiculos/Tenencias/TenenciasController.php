@@ -63,10 +63,10 @@ class TenenciasController extends CI_Controller {
     
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
-            $vehiculo_id = $jsonData['vehiculo_id'] ?? $this->input->post('vehiculo_id');
-            $estado_id = $jsonData['estado_id'] ?? $this->input->post('estado_id');
-            $tipoannio_id = $jsonData['tipoannio_id'] ?? $this->input->post('tipoannio_id');
-            $tipostatus_id = $jsonData['tipostatus_id'] ?? $this->input->post('tipostatus_id');
+            $vehiculo_id = isset($jsonData['vehiculo_id']) ? $jsonData['vehiculo_id'] : $this->input->post('vehiculo_id');
+            $estado_id = isset($jsonData['estado_id']) ? $jsonData['estado_id'] : $this->input->post('estado_id');
+            $tipoannio_id = isset($jsonData['tipoannio_id']) ? $jsonData['tipoannio_id'] : $this->input->post('tipoannio_id');
+            $tipostatus_id = isset($jsonData['tipostatus_id']) ? $jsonData['tipostatus_id'] : $this->input->post('tipostatus_id');
     
             // Validar campos requeridos
             $requiredFields = [
@@ -180,11 +180,11 @@ class TenenciasController extends CI_Controller {
             log_message('debug', 'Datos recibidos: ' . print_r($jsonData, true));
             log_message('debug', 'Datos FILES: ' . print_r($_FILES, true));
     
-            $tenencia_id = $jsonData['tenencia_id'] ?? $this->input->post('tenencia_id');
-            $vehiculo_id = $jsonData['vehiculo_id'] ?? $this->input->post('vehiculo_id');
-            $estado_id = $jsonData['estado_id'] ?? $this->input->post('estado_id');
-            $tipoannio_id = $jsonData['tipoannio_id'] ?? $this->input->post('tipoannio_id');
-            $tipostatus_id = $jsonData['tipostatus_id'] ?? $this->input->post('tipostatus_id');
+            $tenencia_id = isset($jsonData['tenencia_id']) ? $jsonData['tenencia_id'] : $this->input->post('tenencia_id');
+            $vehiculo_id = isset($jsonData['vehiculo_id']) ? $jsonData['vehiculo_id'] : $this->input->post('vehiculo_id');
+            $estado_id = isset($jsonData['estado_id']) ? $jsonData['estado_id'] : $this->input->post('estado_id');
+            $tipoannio_id = isset($jsonData['tipoannio_id']) ? $jsonData['tipoannio_id'] : $this->input->post('tipoannio_id');
+            $tipostatus_id = isset($jsonData['tipostatus_id']) ? $jsonData['tipostatus_id'] : $this->input->post('tipostatus_id');
             
             log_message('debug', "Datos obtenidos: tenencia_id={$tenencia_id}, vehiculo_id={$vehiculo_id}, estado_id={$estado_id}, tipoannio_id={$tipoannio_id}, tipostatus_id={$tipostatus_id}");
     
