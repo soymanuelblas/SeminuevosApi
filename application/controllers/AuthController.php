@@ -111,7 +111,7 @@ class AuthController extends CI_Controller {
             }
     
             $info = json_decode($valid);
-            $sitio = $info->data->sitio_id ?? null;
+            $sitio = isset($info->data->sitio_id) ? $info->data->sitio_id : null;
     
             // Validar datos requeridos
             $requiredFields = ['rfc', 'razon_social', 'representante_legal', 'regimen_fiscal', 'contrasenia', 'recontrasenia'];
