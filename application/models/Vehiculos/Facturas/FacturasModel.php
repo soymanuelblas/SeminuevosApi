@@ -63,4 +63,75 @@ class FacturasModel extends CI_Model {
         return $query->result_array();
     }
 
+    // public function actualizarFactura($factura_id, $sitio_id, $data) {
+    //     $this->db->select('sitio_id');
+    //     $this->db->from('vehiculo');
+    //     $this->db->where('id', $data['vehiculo_id']);
+    //     $sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+
+    //     // Validar si el sitio coincide
+    //     if ($sitio != $sitio_id) {
+    //         return false;
+    //     }
+
+    //     $this->db->select('id');
+    //     $this->db->from('factura');
+    //     $this->db->where('id', $factura_id);
+    //     $factura = $this->db->get()->row_array()['id'] ?? null;
+
+    //     // Validar si la factura existe
+    //     if (!$factura) {
+    //         return false;
+    //     }
+    //     // Validar si el vehiculo_id coincide con la factura
+    //     $this->db->select('vehiculo_id');
+    //     $this->db->from('factura');
+    //     $this->db->where('id', $factura_id);
+    //     $vehiculo_id = $this->db->get()->row_array()['vehiculo_id'] ?? null;
+
+    //     if ($vehiculo_id != $data['vehiculo_id']) {
+    //         return false;
+    //     }
+
+    //     // Actualizar la factura
+    //     $this->db->where('id', $factura_id);
+    //     return $this->db->update('factura', $data);
+    // }
+
+    public function obtenerFacturaCompleta($factura_id, $sitio_id) {
+        $this->db->select('f.*, v.sitio_id as vehiculo_sitio_id');
+        $this->db->from('factura f');
+        $this->db->join('vehiculo v', 'f.vehiculo_id = v.id', 'left');
+        $this->db->where('f.id', $factura_id);
+        $query = $this->db->get();
+        
+        $factura = $query->row_array();
+        
+        // Verificar que la factura pertenezca al sitio correcto
+        return ($factura && $factura['vehiculo_sitio_id'] == $sitio_id) ? $factura : false;
+    }
+    
+    public function actualizarFactura($factura_id, $sitio_id, $data) {
+        // Verificar que la factura pertenece al sitio
+        $factura = $this->obtenerFacturaCompleta($factura_id, $sitio_id);
+        if (!$factura) {
+            return false;
+        }
+    
+        // Verificar que el vehículo no esté siendo cambiado a otro sitio
+        if (isset($data['vehiculo_id'])) {
+            $this->db->select('sitio_id');
+            $this->db->from('vehiculo');
+            $this->db->where('id', $data['vehiculo_id']);
+            $nuevo_sitio = $this->db->get()->row_array()['sitio_id'] ?? null;
+            
+            if ($nuevo_sitio != $sitio_id) {
+                return false;
+            }
+        }
+    
+        $this->db->where('id', $factura_id);
+        return $this->db->update('factura', $data);
+    }
+
 }

@@ -249,171 +249,107 @@ class FacturasController extends CI_Controller {
 
     public function updateFactura() {
         try {
-            // Validación de token
+            // Validación inicial
             $valid = $this->validate();
             $info = json_decode($valid);
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
     
-            // Obtener datos del POST
-            $factura_id = $this->input->post('factura_id'); // Nuevo campo para identificar la factura a actualizar
-            $vehiculo_id = $this->input->post('idvehiculo');
-            $tipo_factura = $this->input->post('tipofac');
-            $expedida_por = $this->input->post('expedida');
-            $folio = $this->input->post('folio');
-            $fecha = $this->input->post('fecha');
-            $status = $this->input->post('statusfac');
+            // Obtener datos
+            $jsonData = $this->input->post() ?: json_decode(file_get_contents('php://input'), true);
+            
+            if (empty($jsonData)) {
+                parse_str(file_get_contents('php://input'), $jsonData);
+            }
     
             // Validar campos requeridos
-            $campos_requeridos = [
-                'factura_id' => $factura_id,
-                'idvehiculo' => $vehiculo_id,
-                'tipofac' => $tipo_factura,
-                'expedida' => $expedida_por,
-                'folio' => $folio,
-                'fecha' => $fecha,
-                'statusfac' => $status
-            ];
-    
-            foreach ($campos_requeridos as $campo => $valor) {
-                if (empty($valor)) {
-                        echo json_encode([
-                            'error' => 'El valor '.$campo.' es requerido',
-                            'status' => 'error'
-                        ]);
+            $required = ['factura_id', 'idvehiculo', 'tipofac', 'expedida', 'folio', 'fecha', 'statusfac'];
+            foreach ($required as $field) {
+                if (empty($jsonData[$field])) {
+                    $response = ['status' => 'error', 'message' => "Falta el campo requerido: $field"];
+                    echo json_encode($response);
                     return;
                 }
             }
     
-            // Obtener la factura actual para mantener el archivo si no se sube uno nuevo
-            $factura_actual = $this->FacturasModel->obtenerFacturaPorId($factura_id, $sitio_id);
+            $factura_id = $jsonData['factura_id'];
+            $vehiculo_id = $jsonData['idvehiculo'];
+    
+            // Obtener la factura actual completa
+            $factura_actual = $this->FacturasModel->obtenerFacturaCompleta($factura_id, $sitio_id);
             if (!$factura_actual) {
-                echo json_encode([
-                    'error' => 'Factura no encontrada',
-                    'status' => 'error'
-                ]);
+                echo json_encode(['status' => 'error', 'message' => 'Factura no encontrada']);
                 return;
             }
     
-            $archivo = $factura_actual['archivo']; // Mantener el archivo actual por defecto
+            // Mantener el archivo actual por defecto
+            $archivo = $factura_actual['archivo'] ?? 'SIN ARCHIVO';
     
-            // Procesar archivo si se envió uno nuevo
+            // Procesar archivo solo si se envía uno nuevo
             if (!empty($_FILES['file']['name'])) {
-                // Ruta base externa
-                $base_path = '/seminuevos/images/';
-                
-                // Verificar permisos de escritura
-                if (!is_writable($base_path)) {
-                    $this->output
-                        ->set_status_header(500)
-                        ->set_content_type('application/json')
-                        ->set_output(json_encode([
-                            'error' => 'El directorio base no tiene permisos de escritura',
-                            'status' => 'error'
-                        ]));
-                    return;
-                }
-    
-                // Ruta completa para este vehículo
+                $base_path = realpath(APPPATH . '../..') . '/images/';
                 $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
-                
-                // Crear directorios si no existen
+    
                 if (!file_exists($upload_path)) {
-                    if (!mkdir($upload_path, 0777, true)) {
-                        $this->output
-                            ->set_status_header(500)
-                            ->set_content_type('application/json')
-                            ->set_output(json_encode([
-                                'error' => 'No se pudo crear el directorio de destino',
-                                'status' => 'error',
-                                'path' => $upload_path
-                            ]));
-                        return;
-                    }
-                    chmod($upload_path, 0777);
+                    mkdir($upload_path, 0777, true);
                 }
     
-                // Configuración de upload
                 $config = [
                     'upload_path' => $upload_path,
                     'allowed_types' => 'jpg|jpeg|png',
                     'max_size' => 40000,
-                    'encrypt_name' => true,
-                    'overwrite' => false,
-                    'remove_spaces' => true
+                    'encrypt_name' => TRUE,
+                    'file_name' => uniqid()
                 ];
     
                 $this->load->library('upload', $config);
     
-                if (!$this->upload->do_upload('file')) {
-                    $error = $this->upload->display_errors('', '');
-                    log_message('error', 'Error al subir archivo: ' . $error);
+                if ($this->upload->do_upload('file')) {
+                    $upload_data = $this->upload->data();
+                    $nuevo_archivo = "/images/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
                     
+                    // Eliminar el archivo anterior solo si existe y es diferente al nuevo
+                    if ($archivo != 'SIN ARCHIVO' && file_exists($base_path . ltrim($archivo, '/'))) {
+                        unlink($base_path . ltrim($archivo, '/'));
+                    }
+                    
+                    $archivo = $nuevo_archivo;
+                } else {
                     echo json_encode([
-                        'error' => 'Error al subir el archivo: ' . $error,
-                        'status' => 'error'
+                        'status' => 'error',
+                        'message' => 'Error al subir archivo',
+                        'upload_error' => $this->upload->display_errors()
                     ]);
                     return;
                 }
-    
-                $upload_data = $this->upload->data();
-                $archivo = '/seminuevos/images/' . $sitio_id . '/' . $vehiculo_id . '/' . $upload_data['file_name'];
-                
-                // Verificar que el archivo se subió correctamente
-                if (!file_exists($upload_path . $upload_data['file_name'])) {
-                    $this->output
-                        ->set_status_header(500)
-                        ->set_content_type('application/json')
-                        ->set_output(json_encode([
-                            'error' => 'El archivo se subió pero no se encuentra en la ruta esperada',
-                            'status' => 'error'
-                        ]));
-                    return;
-                }
-    
-                // Eliminar el archivo anterior si existe y no es "SIN ARCHIVO"
-                if ($factura_actual['archivo'] != 'SIN ARCHIVO' && file_exists(FCPATH . $factura_actual['archivo'])) {
-                    unlink(FCPATH . $factura_actual['archivo']);
-                }
             }
     
-            // Preparar datos para actualizar
+            // Construir datos para actualización
             $data = [
                 'vehiculo_id' => $vehiculo_id,
-                'tipofactura_id' => $tipo_factura,
-                'expedidapor' => $expedida_por,
-                'folio' => $folio,
-                'fecha' => $fecha,
-                'archivo' => $archivo,
-                'tipostatus_id' => $status,
+                'tipofactura_id' => $jsonData['tipofac'],
+                'expedidapor' => $jsonData['expedida'],
+                'folio' => $jsonData['folio'],
+                'fecha' => $jsonData['fecha'],
+                'archivo' => $archivo, // Mantiene la existente o usa la nueva
+                'tipostatus_id' => $jsonData['statusfac'],
             ];
     
-            // Actualizar en la base de datos
             $result = $this->FacturasModel->actualizarFactura($factura_id, $sitio_id, $data);
     
-            if ($result) {
-                $response = [
-                    'status' => 'success',
-                    'message' => 'Factura actualizada correctamente',
-                    'archivo' => $archivo,
-                    'ruta_completa' => $archivo
-                ];
-            } else {
-                $response = [
-                    'status' => 'error',
-                    'message' => 'Error al actualizar la factura'
-                ];
-            }
+            echo json_encode($result ? [
+                'status' => 'success',
+                'message' => 'Factura actualizada',
+                'archivo' => $archivo
+            ] : [
+                'status' => 'error',
+                'message' => 'Error al actualizar'
+            ]);
     
         } catch (Exception $e) {
-            log_message('error', 'Exception en updateFactura: ' . $e->getMessage());
-            $this->output
-                ->set_status_header(500)
-                ->set_content_type('application/json')
-                ->set_output(json_encode([
-                    'error' => 'Error al actualizar la factura: ' . $e->getMessage(),
-                    'status' => 'error'
-                ]));
+            echo json_encode([
+                'error' => 'Error al procesar la solicitud',
+                'status' => 'error',
+            ]);
         }
     }
-
 }
