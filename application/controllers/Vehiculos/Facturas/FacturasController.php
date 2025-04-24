@@ -158,10 +158,8 @@ class FacturasController extends CI_Controller {
     
             if ($result) {
                 $response = [
-                    'status' => 'success',
                     'message' => 'Factura agregada correctamente',
-                    'archivo' => $archivo,
-                    'data' => $data
+                    'status' => 'success',
                 ];
             } else {
                 $response = [
