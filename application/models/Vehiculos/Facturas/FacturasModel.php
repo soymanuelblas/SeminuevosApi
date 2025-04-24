@@ -125,7 +125,9 @@ class FacturasModel extends CI_Model {
             $this->db->select('sitio_id');
             $this->db->from('vehiculo');
             $this->db->where('id', $data['vehiculo_id']);
-            $nuevo_sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
+
+            $row = $this->db->get()->row_array();
+            $nuevo_sitio = $row['sitio_id'] ? $row['sitio_id'] : null;
             
             if ($nuevo_sitio != $sitio_id) {
                 return false;
