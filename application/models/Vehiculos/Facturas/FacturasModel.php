@@ -7,7 +7,8 @@ class FacturasModel extends CI_Model {
         $this->db->select('sitio_id');
         $this->db->from('vehiculo');
         $this->db->where('id', $data['vehiculo_id']);
-        $sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
+        $row = $this->db->get()->row_array();
+        $sitio = isset($row['sitio_id']) ? $row['sitio_id'] : null;
 
         // Validar si el sitio coincide
         if ($sitio != $sitio_id) {
@@ -23,7 +24,8 @@ class FacturasModel extends CI_Model {
         $this->db->from('vehiculo');
         $this->db->where('id', $vehiculo_id);
         
-        $sitio = isset($this->db->get()->row_array()['sitio_id']) ? $this->db->get()->row_array()['sitio_id'] : null;
+        $row = $this->db->get()->row_array();
+        $sitio = isset($row['sitio_id']) ? $row['sitio_id'] : null;
         
         // Validar si el sitio coincide
         if ($sitio != $sitio_id) {
