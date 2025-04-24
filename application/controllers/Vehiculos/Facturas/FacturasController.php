@@ -335,12 +335,11 @@ class FacturasController extends CI_Controller {
             $result = $this->FacturasModel->actualizarFactura($factura_id, $sitio_id, $data);
     
             echo json_encode($result ? [
-                'status' => 'success',
                 'message' => 'Factura actualizada',
-                'archivo' => $archivo
+                'status' => 'success',
             ] : [
+                'message' => 'Error al actualizar',
                 'status' => 'error',
-                'message' => 'Error al actualizar'
             ]);
     
         } catch (Exception $e) {

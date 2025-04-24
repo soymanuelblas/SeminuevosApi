@@ -25,7 +25,7 @@ class EstadisticasModel extends CI_Model {
             'conteos' => $conteos,
             'porcentajes' => $porcentajes,
             'total' => $total,
-            'gastos' => $gastos,
+            //'gastos' => $gastos,
             // 'detalle_gastos' => $this->obtenerDetalleGastos($vehiculo_id, $sitio_id)
         ];
     }
