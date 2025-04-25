@@ -197,78 +197,54 @@ class TenenciasController extends CI_Controller {
             }
             log_message('debug', 'Todos los campos requeridos están presentes');
     
-            // Obtener tenencia actual para manejar el archivo existente
-            log_message('debug', "Obteniendo tenencia actual con ID: {$tenencia_id}");
-
-            $tenencia_actual = $this->TenenciasModel->obtenerTenenciaPorId($tenencia_id, $sitio_id);
-            
-            $archivo = $tenencia_actual['archivo']; // Mantener el archivo actual por defecto
-            log_message('debug', "Archivo actual: {$archivo}");
+            // Obtener la factura actual completa
+            $factura_actual = $this->FacturasModel->obtenerFacturaCompleta($factura_id, $sitio_id);
+            if (!$factura_actual) {
+                echo json_encode(['status' => 'error', 
+                'message' => 'Factura no encontrada']);
+                return;
+            }
     
-            // Procesar archivo si se envía uno nuevo
+            // Mantener el archivo actual por defecto
+            $archivo = isset($factura_actual['archivo']) ? $factura_actual['archivo'] : 'SIN ARCHIVO';
+           
+            // Procesar archivo solo si se envía uno nuevo
             if (!empty($_FILES['archivo']['name'])) {
-                log_message('debug', 'Nuevo archivo recibido, procesando...');
-                
-                // Configurar ruta de subida
-                $upload_path = FCPATH . "images/tenencias/{$sitio_id}/{$vehiculo_id}/";
-                log_message('debug', "Ruta de subida: {$upload_path}");
-                
-                // Crear directorios si no existen
+                $base_path = realpath(APPPATH . '../..') . '/images/';
+                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
+    
                 if (!file_exists($upload_path)) {
-                    log_message('debug', 'Creando directorio para archivos');
-                    if (!mkdir($upload_path, 0777, true)) {
-                        log_message('error', "No se pudo crear el directorio: {$upload_path}");
-                        echo json_encode([
-                            'error' => 'Error al crear directorio para archivos',
-                            'status' => 'error'
-                        ]);
-                        return;
-                    }
-                    chmod($upload_path, 0777);
-                    log_message('debug', 'Directorio creado con permisos 0777');
+                    mkdir($upload_path, 0777, true);
                 }
     
-                // Configurar librería de upload
                 $config = [
                     'upload_path' => $upload_path,
                     'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 40000, // 40 MB
-                    'encrypt_name' => true, // Generar nombre único
-                    'remove_spaces' => true
+                    'max_size' => 40000,
+                    'encrypt_name' => TRUE,
+                    'file_name' => uniqid()
                 ];
-                log_message('debug', 'Configuración de upload: ' . print_r($config, true));
     
                 $this->load->library('upload', $config);
     
-                if ($this->upload->do_upload('archivo')) {
+                if ($this->upload->do_upload('file')) {
                     $upload_data = $this->upload->data();
-                    $archivo = "/images/tenencias/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
-                    log_message('debug', "Archivo subido correctamente: {$archivo}");
+                    $nuevo_archivo = "/images/{$sitio_id}/{$vehiculo_id}/Tenencias/{$upload_data['file_name']}";
                     
-                    // Verificar que el archivo se guardó físicamente
-                    if (!file_exists($upload_path . $upload_data['file_name'])) {
-                        log_message('error', 'El archivo no se guardó físicamente en la ruta esperada');
-                        throw new Exception('El archivo no se guardó correctamente en el servidor');
+                    // Eliminar el archivo anterior solo si existe y es diferente al nuevo
+                    if ($archivo != 'SIN ARCHIVO' && file_exists($base_path . ltrim($archivo, '/'))) {
+                        unlink($base_path . ltrim($archivo, '/'));
                     }
-    
-                    // Eliminar archivo anterior si existe y no es "SIN IMAGEN"
-                    if ($tenencia_actual['archivo'] != 'SIN IMAGEN' && file_exists(FCPATH . $tenencia_actual['archivo'])) {
-                        log_message('debug', "Eliminando archivo anterior: {$tenencia_actual['archivo']}");
-                        if (!unlink(FCPATH . $tenencia_actual['archivo'])) {
-                            log_message('error', "No se pudo eliminar el archivo anterior: {$tenencia_actual['archivo']}");
-                        }
-                    }
+                    
+                    $archivo = $nuevo_archivo;
                 } else {
-                    $error = $this->upload->display_errors('', '');
-                    log_message('error', "Error al subir archivo: {$error}");
                     echo json_encode([
-                        'error' => 'Error al subir archivo: ' . $error,
-                        'status' => 'error'
+                        'status' => 'error',
+                        'message' => 'Error al subir archivo',
+                        'upload_error' => $this->upload->display_errors()
                     ]);
                     return;
                 }
-            } else {
-                log_message('debug', 'No se recibió nuevo archivo, manteniendo el existente');
             }
     
             // Preparar datos para actualizar
@@ -290,9 +266,6 @@ class TenenciasController extends CI_Controller {
                 $response = [
                     'status' => 'success',
                     'message' => 'Tenencia actualizada correctamente',
-                    'data' => [
-                        'archivo_url' => base_url($archivo)
-                    ]
                 ];
             } else {
                 log_message('error', 'Error al actualizar tenencia en la base de datos');
