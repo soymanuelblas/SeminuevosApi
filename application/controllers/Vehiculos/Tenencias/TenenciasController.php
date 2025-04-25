@@ -242,7 +242,7 @@ class TenenciasController extends CI_Controller {
     
                 if ($this->upload->do_upload('archivo')) {
                     $upload_data = $this->upload->data();
-                    $archivo = "images/tenencias/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
+                    $archivo = "/images/tenencias/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
                     log_message('debug', "Archivo subido correctamente: {$archivo}");
                     
                     // Verificar que el archivo se guardó físicamente
