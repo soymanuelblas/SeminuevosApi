@@ -198,21 +198,26 @@ class TenenciasController extends CI_Controller {
             log_message('debug', 'Todos los campos requeridos están presentes');
     
             // Obtener la factura actual completa
-            $factura_actual = $this->FacturasModel->obtenerFacturaCompleta($factura_id, $sitio_id);
-            if (!$factura_actual) {
+            $tenencia_actual = $this->TenenciasModel->obtenerTenenciaPorId($tenencia_id, $sitio_id);
+            if (!$tenencia_actual) {
                 echo json_encode(['status' => 'error', 
-                'message' => 'Factura no encontrada']);
+                'message' => 'Tenencia no encontrada']);
                 return;
             }
+
+            log_message('debug', 'Tenencia actual obtenida: ' . print_r($tenencia_actual, true));
     
             // Mantener el archivo actual por defecto
-            $archivo = isset($factura_actual['archivo']) ? $factura_actual['archivo'] : 'SIN ARCHIVO';
+            $archivo = isset($tenencia_actual['archivo']) ? $tenencia_actual['archivo'] : 'SIN ARCHIVO';
            
-            // Procesar archivo solo si se envía uno nuevo
-            if (!empty($_FILES['archivo']['name'])) {
+            // Procesar archivo si existe
+            $archivo = 'SIN ARCHIVO';
+            if (!empty($_FILES['file']['name'])) {
+                // Ruta absoluta más confiable
                 $base_path = realpath(APPPATH . '../..') . '/images/';
-                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/';
+                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/Tenencias/';
     
+                // Crear directorio si no existe
                 if (!file_exists($upload_path)) {
                     mkdir($upload_path, 0777, true);
                 }
@@ -220,29 +225,20 @@ class TenenciasController extends CI_Controller {
                 $config = [
                     'upload_path' => $upload_path,
                     'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 40000,
+                    'max_size' => 40000, // 40 MB
                     'encrypt_name' => TRUE,
-                    'file_name' => uniqid()
+                    'file_name' => uniqid() // Nombre único adicional
                 ];
     
                 $this->load->library('upload', $config);
     
                 if ($this->upload->do_upload('file')) {
                     $upload_data = $this->upload->data();
-                    $nuevo_archivo = "/images/{$sitio_id}/{$vehiculo_id}/Tenencias/{$upload_data['file_name']}";
-                    
-                    // Eliminar el archivo anterior solo si existe y es diferente al nuevo
-                    if ($archivo != 'SIN ARCHIVO' && file_exists($base_path . ltrim($archivo, '/'))) {
-                        unlink($base_path . ltrim($archivo, '/'));
-                    }
-                    
-                    $archivo = $nuevo_archivo;
+                    $archivo = "/images/{$sitio_id}/{$vehiculo_id}/Tenencias/{$upload_data['file_name']}";
                 } else {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Error al subir archivo',
-                        'upload_error' => $this->upload->display_errors()
-                    ]);
+                        'message' => 'Error al subir el archivo',                    ]);
                     return;
                 }
             }

@@ -12,39 +12,34 @@ class TenenciasModel extends CI_Model {
     }
 
     public function obtenerTenenciaPorId($tenencia_id, $sitio_id) {
-        // Obtener archivo y vehiculo_id de la tenencia
-        $this->db->select('t.archivo as archivo, t.vehiculo_id as vehiculo_id');
+        $this->db->select('t.vehiculo_id as vehiculo_id');
         $this->db->from('tenencia t');
         $this->db->where('t.id', $tenencia_id);
-        $tenencia = $this->db->get()->row();
-
-        // Validar si se encontró la tenencia
+        $tenencia = $this->db->get()->row_array(); // Cambiado a row_array()
+    
         if (!$tenencia) {
             return false;
         }
-
-        $vehiculo_id = $tenencia->vehiculo_id;
-        $archivo = $tenencia->archivo;
-
-        // Verificar si el vehículo existe y obtener su sitio_id
+    
+        $vehiculo_id = $tenencia['vehiculo_id'];
+    
         $this->db->select('sitio_id');
         $this->db->from('vehiculo');
         $this->db->where('id', $vehiculo_id);
         $vehiculo = $this->db->get()->row();
-
-        // Validar si se encontró el vehículo
-        if (!$vehiculo) {
+    
+        if (!$vehiculo || $vehiculo->sitio_id != $sitio_id) {
             return false;
         }
 
-        $sitio = $vehiculo->sitio_id;
+        $this->db->select('t.archivo as archivo');
+        $this->db->from('tenencia t');
+        $this->db->where('t.id', $tenencia_id);
+        $this->db->where('t.vehiculo_id', $vehiculo_id);
 
-        // Comparar sitio_id
-        if ($sitio != $sitio_id) {
-            return false;
-        }
-
-        return $archivo;
+        $result = $this->db->get()->row_array();
+    
+        return $result ? $result['archivo'] : false;
     }
 
     public function actualizarTenencia($tenencia_id, $sitio_id, $data) {
