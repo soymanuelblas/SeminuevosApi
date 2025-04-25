@@ -200,6 +200,7 @@ class TenenciasController extends CI_Controller {
             // Obtener tenencia actual para manejar el archivo existente
             log_message('debug', "Obteniendo tenencia actual con ID: {$tenencia_id}");
 
+            $tenencia_actual = $this->TenenciasModel->obtenerTenenciaPorId($tenencia_id, $sitio_id);
             
             $archivo = $tenencia_actual['archivo']; // Mantener el archivo actual por defecto
             log_message('debug', "Archivo actual: {$archivo}");
