@@ -11,13 +11,27 @@ class TenenciasModel extends CI_Model {
         }
     }
 
-    public function actualizarTenencia($tenencia_id, $data) {
-        $this->db->where('id', $tenencia_id);
-        $result = $this->db->update('tenencia', $data);
-        return $result;
-    }
+    public function actualizarTenencia($tenencia_id, $sitio_id, $data) {
 
-    
+        // Verificar si el vehículo existe y obtener su sitio_id
+        $this->db->select('sitio_id');
+        $this->db->from('vehiculo');
+        $this->db->where('id', $data['vehiculo_id']);
+        $query = $this->db->get();
+
+        if ($query->num_rows() == 0) {
+            return false;
+        }
+
+        $sitio = $query->row()->sitio_id;
+        // Comparar sitio_id
+        if ($sitio != $sitio_id) {
+            return false;
+        }
+
+        $this->db->where('id', $tenencia_id);
+        return $this->db->update('tenencia', $data);
+    }
 
     public function obtenerEstados() {
         $this->db->select('id, descripcion');

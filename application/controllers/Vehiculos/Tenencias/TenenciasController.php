@@ -62,7 +62,7 @@ class TenenciasController extends CI_Controller {
             $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
     
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
-
+    
             $vehiculo_id = isset($jsonData['vehiculo_id']) ? $jsonData['vehiculo_id'] : $this->input->post('vehiculo_id');
             $estado_id = isset($jsonData['estado_id']) ? $jsonData['estado_id'] : $this->input->post('estado_id');
             $tipoannio_id = isset($jsonData['tipoannio_id']) ? $jsonData['tipoannio_id'] : $this->input->post('tipoannio_id');
@@ -75,7 +75,7 @@ class TenenciasController extends CI_Controller {
                 'tipoannio_id' => $tipoannio_id,
                 'tipostatus_id' => $tipostatus_id
             ];
-
+    
             foreach ($requiredFields as $fieldName => $fieldValue) {
                 if (empty($fieldValue)) {
                     echo json_encode([
@@ -86,43 +86,35 @@ class TenenciasController extends CI_Controller {
                 }
             }
     
-            // Procesar archivo
-            $archivo = 'SIN IMAGEN';
-            if (!empty($_FILES['archivo']['name'])) {
-                // Configurar ruta de subida
-                $upload_path = FCPATH . "images/tenencias/{$sitio_id}/{$vehiculo_id}/";
-                
-                // Crear directorios si no existen
+            // Procesar archivo si existe
+            $archivo = 'SIN ARCHIVO';
+            if (!empty($_FILES['file']['name'])) {
+                // Ruta absoluta más confiable
+                $base_path = realpath(APPPATH . '../..') . '/images/';
+                $upload_path = $base_path . $sitio_id . '/' . $vehiculo_id . '/Tenencias/';
+    
+                // Crear directorio si no existe
                 if (!file_exists($upload_path)) {
                     mkdir($upload_path, 0777, true);
-                    chmod($upload_path, 0777);
                 }
     
-                // Configurar librería de upload
                 $config = [
                     'upload_path' => $upload_path,
                     'allowed_types' => 'jpg|jpeg|png',
                     'max_size' => 40000, // 40 MB
-                    'encrypt_name' => true, // Generar nombre único
-                    'remove_spaces' => true
+                    'encrypt_name' => TRUE,
+                    'file_name' => uniqid() // Nombre único adicional
                 ];
     
                 $this->load->library('upload', $config);
     
-                if ($this->upload->do_upload('archivo')) {
+                if ($this->upload->do_upload('file')) {
                     $upload_data = $this->upload->data();
-                    $archivo = "images/tenencias/{$sitio_id}/{$vehiculo_id}/{$upload_data['file_name']}";
-                    
-                    // Verificar que el archivo se guardó físicamente
-                    if (!file_exists($upload_path . $upload_data['file_name'])) {
-                        throw new Exception('El archivo no se guardó correctamente en el servidor');
-                    }
+                    $archivo = "/images/{$sitio_id}/{$vehiculo_id}/Tenencias/{$upload_data['file_name']}";
                 } else {
-                    $error = $this->upload->display_errors('', '');
                     echo json_encode([
-                        'error' => 'Error al subir archivo',
-                        'status' => 'error'
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Error al subir el archivo',                    ]);
                     return;
                 }
             }
@@ -142,10 +134,7 @@ class TenenciasController extends CI_Controller {
             if ($result) {
                 $response = [
                     'status' => 'success',
-                    'message' => 'Tenencia registrada correctamente',
-                    'data' => [
-                        'archivo_url' => base_url($archivo)
-                    ]
+                    'message' => 'Tenencia registrada correctamente'
                 ];
             } else {
                 $response = [
@@ -157,9 +146,8 @@ class TenenciasController extends CI_Controller {
             echo json_encode($response);
     
         } catch (Exception $e) {
-            log_message('error', 'Error en addTenencias');
             echo json_encode([
-                'error' => 'Error al procesar la tenencia: ' . $e->getMessage(),
+                'error' => 'Error al procesar la tenencia',
                 'status' => 'error'
             ]);
         }
@@ -284,11 +272,11 @@ class TenenciasController extends CI_Controller {
     
             // Preparar datos para actualizar
             $data = [
+                'vehiculo_id' => $vehiculo_id,
                 'estado_id' => $estado_id,
                 'tipoannio_id' => $tipoannio_id,
                 'tipostatus_id' => $tipostatus_id,
                 'archivo' => $archivo,
-                'fecha_actualizacion' => date('Y-m-d H:i:s')
             ];
             log_message('debug', 'Datos preparados para actualización: ' . print_r($data, true));
     
