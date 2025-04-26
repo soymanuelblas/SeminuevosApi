@@ -84,11 +84,11 @@ class ImagenesController extends CI_Controller {
             // Validar token
             $valid = $this->validate();
             $info = json_decode($valid);
-            $sitio_id = $info->data->sitio_id ?? 0;
+            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
     
             // Obtener datos de entrada
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
-            $vehiculo_id = $jsonData['vehiculo_id'] ?? null;
+            $vehiculo_id = $jsonData['vehiculo_id'] ? $jsonData['vehiculo_id'] : null;
 
             // Validar campos requeridos
             $required = ['vehiculo_id', 'tipo', 'titulo'];
@@ -172,11 +172,11 @@ class ImagenesController extends CI_Controller {
             // Validar token y obtener sitio_id
             $valid = $this->validate();
             $info = json_decode($valid);
-            $sitio_id = $info->data->sitio_id ?? 0;
+            $sitio_id = isset($info->data->sitio_id) ? $info->data->sitio_id : 0;
     
             // Obtener ID de la imagen a eliminar
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
-            $imagen_id = $jsonData['id'] ?? null;
+            $imagen_id = isset($jsonData['imagen_id']) ? $jsonData['imagen_id'] : null;
     
             if (empty($imagen_id)) {
                 echo json_encode([
