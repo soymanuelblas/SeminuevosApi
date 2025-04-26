@@ -26,27 +26,43 @@ class ImagenesModel extends CI_Model {
         return $this->db->insert_id();
     }
 
-    public function eliminarImagen($id, $sitio) {
-
-        $this->db->select('vehiculo_id');
-        $this->db->from('imagen');
-        $this->db->where('id', $id);
-
-        $vehiculo_id = $this->db->get()->row()->vehiculo_id;
-
-        $this->db->select('sitio_id');
-        $this->db->from('vehiculo');
-        $this->db->where('id', $vehiculo_id);
-
-        $sitio_id = $this->db->get()->row()->sitio_id;
-
-        if($sitio_id == $sitio) {
-            $this->db->where('vehiculo_id', $vehiculo_id);
-            $this->db->delete('imagen');
-            return true;
-        } else {
+    public function obtenerImagenPorId($imagen_id, $sitio_id) {
+        // Obtener la imagen con verificación de pertenencia al sitio
+        $this->db->select('i.*, v.sitio_id');
+        $this->db->from('imagen i');
+        $this->db->join('vehiculo v', 'i.vehiculo_id = v.id');
+        $this->db->where('i.id', $imagen_id);
+        $query = $this->db->get();
+    
+        if ($query->num_rows() === 0) {
             return false;
         }
+    
+        $imagen = $query->row_array();
+    
+        // Verificar que pertenece al sitio correcto
+        if ($imagen['sitio_id'] != $sitio_id) {
+            return false;
+        }
+    
+        return $imagen;
+    }
+
+    public function eliminarImagen($imagen_id, $sitio_id) {
+        // Verificar que la imagen pertenece al sitio antes de eliminar
+        $this->db->select('i.id, v.sitio_id');
+        $this->db->from('imagen i');
+        $this->db->join('vehiculo v', 'i.vehiculo_id = v.id');
+        $this->db->where('i.id', $imagen_id);
+        $query = $this->db->get();
+    
+        if ($query->num_rows() === 0 || $query->row()->sitio_id != $sitio_id) {
+            return false;
+        }
+    
+        // Eliminar el registro
+        $this->db->where('id', $imagen_id);
+        return $this->db->delete('imagen');
     }
 
     public function listarImagen($vehiculo_id, $tipo, $sitio_id) {
