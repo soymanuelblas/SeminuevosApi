@@ -133,7 +133,7 @@ class ImagenesController extends CI_Controller {
                 }
     
                 $upload_data = $this->upload->data();
-                $archivo = "/{$sitio_id}/{$vehiculo_id}/Principales/{$upload_data['file_name']}";
+                $archivo = "{$sitio_id}/{$vehiculo_id}/Principales/{$upload_data['file_name']}";
             }
     
             // Preparar datos para insertar
