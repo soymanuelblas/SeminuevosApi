@@ -48,8 +48,8 @@ class CliProvController extends CI_Controller {
             }
     
             $info = json_decode($valid);
-            $sitio = $info->data->sitio_id ?? null;
-            $usuario_id = $info->data->id ?? null;
+            $sitio = $info->data->sitio_id ? $info->data->sitio_id : null;
+            $usuario_id = $info->data->id ? $info->data->id : null;
             
             // Obtener los datos del cliente/proveedor
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
@@ -160,8 +160,8 @@ class CliProvController extends CI_Controller {
             }
     
             $info = json_decode($valid);
-            $sitio = $info->data->sitio_id ?? null;
-            $usuario_id = $info->data->id ?? null;
+            $sitio = $info->data->sitio_id ? $info->data->sitio_id : null;
+            $usuario_id = $info->data->id ? $info->data->id : null;
 
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
@@ -269,7 +269,7 @@ class CliProvController extends CI_Controller {
             }
 
             $info = json_decode($valid);
-            $usuario_id = $info->data->id ?? null;
+            $usuario_id = $info->data->id ? $info->data->id : null;
 
             // Obtener los clientes/proveedores
             $clientesProveedores = $this->ClienteProvModel->listClientProvider($usuario_id);
