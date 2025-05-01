@@ -109,7 +109,6 @@ class CompraController extends CI_Controller {
             $testigo1 = $this->input->get_post('testigo1') ?: (isset($jsonData['testigo1']) ? $jsonData['testigo1'] : null);
             $testigo2 = $this->input->get_post('testigo2') ?: (isset($jsonData['testigo2']) ? $jsonData['testigo2'] : null);
             $statusventa = $this->input->get_post('statusventa') ?: (isset($jsonData['statusventa']) ? $jsonData['statusventa'] : null);
-            $necesitas = $this->input->get_post('necesitas') ?: (isset($jsonData['necesitas']) ? $jsonData['necesitas'] : null);
             
             $filter_datos = ['vehiculo_id', 'clientecompra', 'precio', 'km', 'fecha', 'testigo1', 'testigo2', 'statusventa', 'necesitas'];
 
@@ -132,12 +131,21 @@ class CompraController extends CI_Controller {
                 'testigo1' => $testigo1,
                 'testigo2' => $testigo2,
                 'statusventa' => $statusventa,
-                'necesitas' => $necesitas
             ];
 
-            $result = $this->CompraModel->agregarCompra();
+            $result = $this->CompraModel->agregarCompra($data, $sitio_id);
             
-
+            if($result) {
+                echo json_encode([
+                    'data' => 'Compra agregada correctamente',
+                    'status' => 'success'
+                ]);
+            }else {
+                echo json_encode([
+                    'error' => 'Error al agregar la compra',
+                    'status' => 'error'
+                ]);
+            }
         }catch (Exception $e) {
             echo json_encode([
                 'error' => 'Error al agregar la compra',
@@ -147,8 +155,21 @@ class CompraController extends CI_Controller {
         }
     }
 
+    public function updateCompra() {
+        try {
+            $valid = $this->validate();
+            // Obtener datos de entrada
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
 
+            
 
-
+        }catch (Exception $e) {
+            echo json_encode([
+                'error' => 'Error al actualizar la compra',
+                'status' => 'error'
+            ]);
+            exit;
+        }
+    }
 
 }
