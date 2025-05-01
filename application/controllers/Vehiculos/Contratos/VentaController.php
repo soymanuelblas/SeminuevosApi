@@ -54,8 +54,16 @@ class VentaController extends CI_Controller {
         return $valid;
     }
 
-    
+    public function listVenta() {
 
+    }
 
+    public function addVenta() {
+
+    }
+
+    public function updateVenta() {
+
+    }
 
 }
