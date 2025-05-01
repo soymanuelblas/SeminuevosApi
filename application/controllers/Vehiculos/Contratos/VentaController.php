@@ -5,7 +5,7 @@ class VentaController extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('Contratos/VentaModel');
+        $this->load->model('Vehiculos/Contratos/VentaModel');
         $this->load->helper('verifyauthtoken_helper');
         
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -54,8 +54,46 @@ class VentaController extends CI_Controller {
         return $valid;
     }
 
-    public function listVenta() {
+    public function listVentas() {
+        try {
+            $valid = $this->validate();
+            $info = json_decode($valid);
+            $sitio_id = $info->data->sitio_id;
 
+            // Obtener datos de entrada
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+            $vehiculo_id = $this->input->get_post('vehiculo_id') ?: (isset($jsonData['vehiculo_id']) ? $jsonData['vehiculo_id'] : null);
+
+            $result = $this->VentaModel->listarVentas($vehiculo_id, $sitio_id);
+
+            if (empty($result)) {
+                echo json_encode([
+                    'error' => 'No se encontraron ventas',
+                    'status' => 'error'
+                ]);
+                return;
+            }
+
+            $result_pagos = $this->VentaModel->listarPagos($vehiculo_id, $sitio_id);
+
+            if ($result) {
+                echo json_encode([
+                    'data' => $result,
+                    'pagos' => $result_pagos,
+                    'status' => 'success'
+                ]);
+            } else {
+                echo json_encode([
+                    'error' => 'No se encontraron ventas',
+                    'status' => 'error'
+                ]);
+            }
+        }catch (Exception $e) {
+            echo json_encode([
+                'error' => 'Error al listar las ventas'. $e->getMessage(),
+                'status' => 'error'
+            ]);
+        }
     }
 
     public function addVenta() {

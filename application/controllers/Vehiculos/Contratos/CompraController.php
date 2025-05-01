@@ -74,7 +74,7 @@ class CompraController extends CI_Controller {
     public function listCompras() {
         try {
             $valid = $this->validate();
-            $sitio_id = $valid->data->sitio_id ?? 0;
+            $sitio_id = $valid->data->sitio_id;
 
             // Obtener datos de entrada
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
@@ -125,7 +125,7 @@ class CompraController extends CI_Controller {
     public function listCompra() {
         try {
             $valid = $this->validate();
-            $sitio_id = $valid->data->sitio_id ?? 0;
+            $sitio_id = $valid->data->sitio_id;
 
             // Obtener datos de entrada
             $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
