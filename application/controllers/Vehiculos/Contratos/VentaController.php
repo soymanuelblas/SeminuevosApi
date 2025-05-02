@@ -97,7 +97,44 @@ class VentaController extends CI_Controller {
     }
 
     public function addVenta() {
+        try {
+            $valid = $this->validate();
+            $info = json_decode($valid);
+            $sitio_id = $info->data->sitio_id;
 
+            // Obtener datos de entrada
+            $jsonData = json_decode(file_get_contents('php://input'), true) ?: $this->input->post();
+            
+            $validar_factura_tenencia = $this->validarFacturaYTenencia($jsonData['vehiculo_id']);
+
+            if(!$validar_factura_tenencia) {
+                echo json_encode([
+                    'error' => 'Agrega la factura y tenencia antes de agregar la venta',
+                    'status' => 'error'
+                ]);
+                return;
+            }
+
+            $validar_vin = $this->validarVinVehiculo($jsonData['vehiculo_id'], $sitio_id);
+
+            if(!$validar_vin) {
+                echo json_encode([
+                    'error' => 'El número de serie del vehículo no es válido',
+                    'status' => 'error'
+                ]);
+                return;
+            }
+
+            $filter_field = [];
+
+
+
+        }catch (Exception $e) {
+            echo json_encode([
+                'error' => 'Error al agregar la venta: ' . $e->getMessage(),
+                'status' => 'error'
+            ]);
+        }
     }
 
     public function updateVenta() {

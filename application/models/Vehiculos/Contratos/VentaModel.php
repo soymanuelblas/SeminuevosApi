@@ -43,8 +43,72 @@ class VentaModel extends CI_Model {
         return $this->db->get()->result();
     }
 
-    public function agregarVenta() {
+    public function validarFacturaYTenencia($vehiculo_id) {
+        $this->db->select('COUNT(*) as factura');
+        $this->db->from('factura');
+        $this->db->where('vehiculo_id', $vehiculo_id);
+        $cantidad_facturas = $this->db->get()->row()->factura;
 
+        $this->db->select('COUNT(*) as tenencia');
+        $this->db->from('tenencia');
+        $this->db->where('vehiculo_id', $vehiculo_id);
+        
+        $cantidad_tenencias = $this->db->get()->row()->tenencia;
+
+        return ($cantidad_facturas > 0 && $cantidad_tenencias > 0);
+    }
+   
+    public function validarVinVehiculo($vehiculo_id, $sitio_id) {
+        $this->db->select('numeroserie, version_id');
+        $this->db->from('vehiculo');
+        $this->db->where('id', $vehiculo_id);
+        $this->db->where('sitio_id', $sitio_id);
+
+        $row = $this->db->get()->row();
+
+        // Verificar si se encontró el vehículo
+        if (!$row) {
+            return false;
+        }
+
+        $vin = $row->numeroserie;
+        $version_id = $row->version_id;
+
+        $this->db->select('ta.descripcion as anio');
+        $this->db->from('version');
+        $this->db->where('id', $version_id);
+        $this->db->join('tipoannio as ta', 'ta.id = version.tipoannio_id', 'left');     
+
+        $row = $this->db->get()->row();
+
+        // Verificar si se encontró la versión
+        if (!$row) {
+            return false;
+        }
+
+        $anio = $row->anio;
+
+        // Verificar si el año es válido
+        if ($anio < 1981 || $anio > date('Y')) {
+            return false;
+        }
+
+        // Validar el formato del VIN
+        if ($this->esVinValido($vin)) {
+            return true;
+        }
+        return false;
+    }
+
+    // Función para validar el formato del VIN
+    private function esVinValido($vin) {
+        // El VIN debe tener exactamente 17 caracteres alfanuméricos y no contener I, O, Q
+        $regex = '/^[A-HJ-NPR-Z0-9]{17}$/';
+        return preg_match($regex, $vin);
+    }
+
+    public function agregarVenta() {
+        
     }
 
     public function actualizarVenta() {
