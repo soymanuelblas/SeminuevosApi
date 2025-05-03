@@ -10,19 +10,18 @@ class CompraModel extends CI_Model {
                           cli_venta.nombre as cliente_venta,
                           m.descripcion as marca, mod.descripcion as modelo');
         $this->db->from('operacion o');
-        $this->db->join('vehiculo v', 'v.id = o.vehiculo_id');
-        $this->db->join('clientes cli_compra', 'cli_compra.id = o.clientecompra_id');
-        $this->db->join('clientes cli_venta', 'cli_venta.id = o.clienteventa_id');
-        $this->db->join('version ver', 'ver.id = v.version_id');
-        $this->db->join('tipomodelo mod', 'mod.id = ver.tipomodelo_id');
-        $this->db->join('tipomarca m', 'm.id = mod.tipomarca_id');
+        $this->db->join('vehiculo v', 'v.id = o.vehiculo_id', 'left');
+        $this->db->join('clientes cli_compra', 'cli_compra.id = o.clientecompra_id', 'left');
+        $this->db->join('clientes cli_venta', 'cli_venta.id = o.clienteventa_id', 'left');
+        $this->db->join('version ver', 'ver.id = v.version_id', 'left');
+        $this->db->join('tipomodelo mod', 'mod.id = ver.tipomodelo_id', 'left');
+        $this->db->join('tipomarca m', 'm.id = mod.tipomarca_id', 'left');
         $this->db->where('o.sitio_id', $sitio_id);
         $this->db->where('o.tipo_operacion', 11); // 11 = Compra
         $this->db->order_by('o.fecha', 'DESC');
         
-        if ($vehiculo_id) {
-            $this->db->where('v.id', $vehiculo_id);
-        }
+
+        $this->db->where('o.vehiculo_id', $vehiculo_id);
 
         return $this->db->get()->result();
     }

@@ -76,7 +76,7 @@ class CompraController extends CI_Controller {
 
             $result_pagos = $this->CompraModel->listarPagos($vehiculo_id, $sitio_id);
 
-            if ($result) {
+            if ($result && $result_pagos) {
                 echo json_encode([
                     'data' => $result,
                     'pagos' => $result_pagos,
@@ -228,7 +228,7 @@ class CompraController extends CI_Controller {
             // Validar campos requeridos
             $requiredFields = [
                 'id_operacion', 'vehiculo_id', 'clientecompra_id', 'precio', 'km',
-                'fecha', 'testigo1', 'testigo2', 'statusventa', 'formas_pago'
+                'testigo1', 'testigo2', 'statusventa', 'formas_pago'
             ];
             
             foreach ($requiredFields as $field) {
