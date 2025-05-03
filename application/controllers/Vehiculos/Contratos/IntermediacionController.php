@@ -54,6 +54,10 @@ class IntermediacionController extends CI_Controller {
         return $valid;
     }
 
+    public function listIntermediacion() {
+
+    }
+
     public function addIntermediacion() {
         try {
             $valid = $this->validate();
@@ -78,7 +82,5 @@ class IntermediacionController extends CI_Controller {
     public function updateIntermediacion() {
         
     }
-
-
 
 }
