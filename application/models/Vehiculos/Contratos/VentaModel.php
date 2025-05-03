@@ -59,10 +59,10 @@ class VentaModel extends CI_Model {
     }
    
     public function validarVinVehiculo($vehiculo_id, $sitio_id) {
-        $this->db->select('numeroserie, version_id');
-        $this->db->from('vehiculo');
-        $this->db->where('id', $vehiculo_id);
-        $this->db->where('sitio_id', $sitio_id);
+        $this->db->select('v.numeroserie, v.version_id');
+        $this->db->from('vehiculo as v');
+        $this->db->where('v.id', $vehiculo_id);
+        $this->db->where('v.sitio_id', $sitio_id);
 
         $row = $this->db->get()->row();
 
@@ -75,9 +75,9 @@ class VentaModel extends CI_Model {
         $version_id = $row->version_id;
 
         $this->db->select('ta.descripcion as anio');
-        $this->db->from('version');
-        $this->db->where('id', $version_id);
-        $this->db->join('tipoannio as ta', 'ta.id = version.tipoannio_id', 'left');     
+        $this->db->from('version as v');
+        $this->db->where('v.id', $version_id);
+        $this->db->join('tipoannio as ta', 'ta.id = v.tipoannio_id', 'left');     
 
         $row = $this->db->get()->row();
 
@@ -100,6 +100,29 @@ class VentaModel extends CI_Model {
         return false;
     }
 
+    public function listarClientes($sitio_id) {
+        $this->db->select('razonsocial_id');
+        $this->db->from('sitio');
+        $this->db->where('id', $sitio_id);
+
+        $row = $this->db->get()->row();
+        $razonsocial_id = $row->razonsocial_id;
+
+        $this->db->select('id, nombre');
+        $this->db->from('clientes');
+        $this->db->where('razonsocial_id', $razonsocial_id);
+
+        return $this->db->get()->result();
+    }
+
+    public function listarFormasPago() {
+        $this->db->select('id, descripcion');
+        $this->db->from('tipostatus');
+        $this->db->where('tipo', 42);
+
+        return $this->db->get()->result();
+    }
+
     // Función para validar el formato del VIN
     private function esVinValido($vin) {
         // El VIN debe tener exactamente 17 caracteres alfanuméricos y no contener I, O, Q
@@ -107,12 +130,162 @@ class VentaModel extends CI_Model {
         return preg_match($regex, $vin);
     }
 
-    public function agregarVenta() {
-        
+    public function obtenerCorteId($sitio_id) {
+        $this->db->select('MAX(id_interno) AS id, serie');
+        $this->db->from('cortecaja');
+        $this->db->where('sitio_id', $sitio_id);
+
+        return $this->db->get()->row();
     }
 
-    public function actualizarVenta() {
+    public function agregarVenta($data, $data_operacion_auto, $formas_pago) {
+        // Validar que lo pagado sea igual al precio
+        $acumular_importes = 0;
+        foreach ($formas_pago as $forma_pago) {
+            $acumular_importes += $forma_pago['importe'];
+        }
+        if ($acumular_importes != $data['importe']) {
+            return false;
+        }
 
+        $this->db->select('COUNT(*) as id_interno');
+        $this->db->from('operacion');
+        $this->db->where('sitio_id', $data['sitio_id']);
+
+        $id_interno_count = $this->db->get()->row()->id_interno;
+
+        $id_interno = $id_interno_count + 1;
+        $data['id_interno'] = $id_interno_count;
+
+        $this->db->insert('operacion', $data);
+
+        $data_operacion_auto['operacion_id'] = $id_interno_count;
+        // Insertar los datos de la operación del vehículo
+        $this->db->insert('operacion_auto', $data_operacion_auto);
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('formapago');
+        $this->db->where('sitio_id', $data['sitio_id']);
+
+        $total = $this->db->get()->row()->total;
+
+        // Insertar las formas de pago
+        foreach ($formas_pago as $forma_pago) {
+            $forma_pago_data = [
+                'id_interno' => $total + 1,
+                'operacion_id' => $id_interno_count,
+                'formapago_id' => $forma_pago['formapago_id'],
+                'referencia' => $forma_pago['referencia'] ? $forma_pago['referencia'] : 'N/A',
+                'importe' => $forma_pago['importe'],
+                'fechaexpedicion' => $forma_pago['fechaexpedicion'] ? $forma_pago['fechaexpedicion'] : date('Y-m-d'),
+                'fechavencimiento' => $forma_pago['fechavencimiento'] ? $forma_pago['fechavencimiento'] : date('Y-m-d'),
+                'tipostatus_id' => 5211,
+                'serie' => 'A',
+                'codigo' => 0,
+                'sitio_id' => $data['sitio_id']
+            ];
+            $this->db->insert('formapago', $forma_pago_data);
+            $total += 1;
+        }
+
+        $result = $this->db->affected_rows();
+
+        return $result > 0 ? $id_interno : false;
+    }
+
+    public function obtenerOperacion($id_operacion, $sitio_id) {
+        $this->db->select('*');
+        $this->db->from('operacion');
+        $this->db->where('id_interno', $id_operacion);
+        $this->db->where('sitio_id', $sitio_id);
+        $this->db->where('tipo_operacion', 3); // Tipo venta
+        return $this->db->get()->row();
+    }
+    
+    public function actualizarVenta($id_operacion, $sitio_id, $data_operacion, $data_operacion_auto, $formas_pago) {
+        $this->db->trans_begin();
+        
+        try {
+            // Actualizar operación principal
+            $this->db->where('id_interno', $id_operacion);
+            $this->db->where('sitio_id', $sitio_id);
+            $this->db->update('operacion', $data_operacion);
+            
+            // Actualizar operación_auto
+            $this->db->where('operacion_id', $id_operacion);
+            $this->db->where('sitio_id', $sitio_id);
+            $this->db->update('operacion_auto', $data_operacion_auto);
+            
+            // Manejar formas de pago
+            $this->procesarFormasPago($id_operacion, $sitio_id, $formas_pago);
+            
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                return false;
+            }
+            
+            $this->db->trans_commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            log_message('error', 'Error al actualizar venta: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private function procesarFormasPago($id_operacion, $sitio_id, $formas_pago) {
+        // Obtener pagos existentes para esta operación
+        $this->db->select('id_interno');
+        $this->db->from('formapago');
+        $this->db->where('operacion_id', $id_operacion);
+        $this->db->where('sitio_id', $sitio_id);
+        $pagos_existentes = $this->db->get()->result_array();
+        $ids_existentes = array_column($pagos_existentes, 'id_interno');
+        
+        $ids_recibidos = array_filter(array_column($formas_pago, 'id_interno'));
+        
+        // Eliminar pagos que ya no están en la solicitud
+        $ids_eliminar = array_diff($ids_existentes, $ids_recibidos);
+        if (!empty($ids_eliminar)) {
+            $this->db->where_in('id_interno', $ids_eliminar);
+            $this->db->where('operacion_id', $id_operacion);
+            $this->db->where('sitio_id', $sitio_id);
+            $this->db->delete('formapago');
+        }
+        
+        // Actualizar/insertar pagos
+        foreach ($formas_pago as $pago) {
+            $pago_data = [
+                'formapago_id' => $pago['formapago_id'],
+                'referencia' => $pago['referencia'] ?? 'N/A',
+                'importe' => $pago['importe'],
+                'fechaexpedicion' => $pago['fechaexpedicion'] ?? date('Y-m-d'),
+                'fechavencimiento' => $pago['fechavencimiento'] ?? date('Y-m-d'),
+                'tipostatus_id' => 5211,
+                'serie' => 'A',
+                'codigo' => 0,
+                'sitio_id' => $sitio_id
+            ];
+            
+            if (isset($pago['id_interno']) && in_array($pago['id_interno'], $ids_existentes)) {
+                // Actualizar pago existente
+                $this->db->where('id_interno', $pago['id_interno']);
+                $this->db->where('operacion_id', $id_operacion);
+                $this->db->where('sitio_id', $sitio_id);
+                $this->db->update('formapago', $pago_data);
+            } else {
+                // Insertar nuevo pago
+                $this->db->select('MAX(id_interno) as max_id');
+                $this->db->from('formapago');
+                $this->db->where('sitio_id', $sitio_id);
+                $max_id = $this->db->get()->row()->max_id;
+                
+                $pago_data['id_interno'] = $max_id + 1;
+                $pago_data['operacion_id'] = $id_operacion;
+                $this->db->insert('formapago', $pago_data);
+            }
+        }
     }
 
 }
