@@ -258,10 +258,10 @@ class VentaModel extends CI_Model {
         foreach ($formas_pago as $pago) {
             $pago_data = [
                 'formapago_id' => $pago['formapago_id'],
-                'referencia' => $pago['referencia'] ?? 'N/A',
+                'referencia' => $pago['referencia'] ? $pago['referencia'] : 'N/A',
                 'importe' => $pago['importe'],
-                'fechaexpedicion' => $pago['fechaexpedicion'] ?? date('Y-m-d'),
-                'fechavencimiento' => $pago['fechavencimiento'] ?? date('Y-m-d'),
+                'fechaexpedicion' => $pago['fechaexpedicion'] ? $pago['fechaexpedicion'] : date('Y-m-d'),
+                'fechavencimiento' => $pago['fechavencimiento'] ? $pago['fechavencimiento'] : date('Y-m-d'),
                 'tipostatus_id' => 5211,
                 'serie' => 'A',
                 'codigo' => 0,
